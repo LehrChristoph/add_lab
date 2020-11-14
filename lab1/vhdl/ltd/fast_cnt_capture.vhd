@@ -34,14 +34,14 @@ architecture beh of fast_cnt_capture is
 	signal overflow : std_logic_vector(0 to CNT_WIDTH / 4 - 2);
 	type cnt_array_type is array(0 to 2 * CNT_WIDTH / 4 - 2) of std_logic_vector(CNT_WIDTH - 1 downto 0);
 	signal cnt_sync : cnt_array_type;
-	signal cnt_int : std_logic_vector(CNT_WIDTH - 1 downto 0);  
+	signal cnt_int : std_logic_vector(CNT_WIDTH - 1 downto 0);
 	signal cnt_stack_ack_int, cnt_stack_rd_int, cnt_stack_empty_int : std_logic_vector(CAPTURE_SOURCES - 1 downto 0);
 	signal cnt_stack_source_int, cnt_stack_source_int_next : std_logic_vector(log2c(CAPTURE_SOURCES) - 1 downto 0) := (others => '0');
 	type STATE_TYPE is (IDLE, READ, WAIT_ACK, RELEASE_RD, WAIT_ACK_RELEASE_RD);
 	signal state, state_next : STATE_TYPE;
 	type CNT_STACK_DATA_ARRAY is array(0 to CAPTURE_SOURCES - 1) of std_logic_vector(CNT_WIDTH - 1 downto 0);
 	signal cnt_stack_data_int : CNT_STACK_DATA_ARRAY;
-begin 
+begin
 	cnt_proc : process(clk, res_n)
 	begin
 		if res_n = '0' then
@@ -88,15 +88,15 @@ begin
 				if cnt_stack_rd = '1' and to_integer(unsigned(cnt_stack_source)) < CAPTURE_SOURCES and cnt_stack_empty_int(to_integer(unsigned(cnt_stack_source))) = '0' then
 					state_next <= READ;
 			end if;
-			when READ => 
+			when READ =>
 				state_next <= WAIT_ACK;
-			when WAIT_ACK => 
+			when WAIT_ACK =>
 				if cnt_stack_ack_int(to_integer(unsigned(cnt_stack_source_int))) = '1' then
 					state_next <= RELEASE_RD;
 				end if;
 			when RELEASE_RD =>
 				state_next <= WAIT_ACK_RELEASE_RD;
-			when WAIT_ACK_RELEASE_RD => 
+			when WAIT_ACK_RELEASE_RD =>
 				if cnt_stack_ack_int(to_integer(unsigned(cnt_stack_source_int))) = '0' then
 					state_next <= IDLE;
 				end if;
@@ -112,15 +112,15 @@ begin
 		case state is
 			when IDLE =>
 				cnt_stack_source_int_next <= cnt_stack_source;
-			when READ => 
+			when READ =>
 				cnt_stack_rd_int(to_integer(unsigned(cnt_stack_source_int))) <= '1';
 				cnt_stack_busy <= '1';
-			when WAIT_ACK => 
+			when WAIT_ACK =>
 				cnt_stack_rd_int(to_integer(unsigned(cnt_stack_source_int))) <= '1';
 				cnt_stack_busy <= '1';
 			when RELEASE_RD =>
 				cnt_stack_busy <= '1';
-			when WAIT_ACK_RELEASE_RD => 
+			when WAIT_ACK_RELEASE_RD =>
 				cnt_stack_busy <= '1';
 		end case;
 	end process;
@@ -139,30 +139,33 @@ begin
 
 	-- There is only one FIFO present! Generate one FIFO for every case (capture source)!
 	-- The number of capture sources is given in the generic "CAPTURE_SOURCES"!
-	fifo_inst : fifo_2c1r1w
-	generic map (
-		MIN_DEPTH => MIN_DEPTH,
-		DATA_WIDTH => CNT_WIDTH,
-		SYNC_STAGES => SYNC_STAGES
-	)
-	port map (
-		clk1 => clk_contr,
-		res1_n => res_contr_n,
-		rd1 => cnt_stack_rd_int(0),
-		ack1 => cnt_stack_ack_int(0),
-		data_out1 => cnt_stack_data_int(0),
-		empty1 => cnt_stack_empty_int(0),
-		full1 => open,
-		overflowed1 => cnt_stack_overflowed(0),
 
-		clk2 => clk,
-		res2_n => res_n,
-		data_in2 => cnt_int,
-		wr2 => capture(0),
-		empty2 => open,
-		full2 => open,
-		overflowed2 => open
-	);
+	GEN_FIFO: for i in 0 to CAPTURE_SOURCES-1 generate
+		fifo_inst : fifo_2c1r1w
+		generic map (
+			MIN_DEPTH => MIN_DEPTH,
+			DATA_WIDTH => CNT_WIDTH,
+			SYNC_STAGES => SYNC_STAGES
+		)
+		port map (
+			clk1 => clk_contr,
+			res1_n => res_contr_n,
+			rd1 => cnt_stack_rd_int(i),
+			ack1 => cnt_stack_ack_int(i),
+			data_out1 => cnt_stack_data_int(i),
+			empty1 => cnt_stack_empty_int(i),
+			full1 => open,
+			overflowed1 => cnt_stack_overflowed(i),
+
+			clk2 => clk,
+			res2_n => res_n,
+			data_in2 => cnt_int,
+			wr2 => capture(i),
+			empty2 => open,
+			full2 => open,
+			overflowed2 => open
+		);
+	end generate GEN_FIFO;
 
 	cnt_stack_empty <= cnt_stack_empty_int;
 	cnt_stack_data <= cnt_stack_data_int(to_integer(unsigned(cnt_stack_source)));
