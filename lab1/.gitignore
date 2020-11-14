@@ -1,0 +1,14 @@
+quartus/db/*
+quartus/incremental_db/*
+quartus/*.rpt
+quartus/*.done
+quartus/*.smsg
+quartus/*.summary
+quartus/*.jdi
+quartus/*.pin
+quartus/*.sld
+quartus/*.sof
+quartus/*.qdf
+quartus/*.qws
+quartus/simulation
+__pycache__
