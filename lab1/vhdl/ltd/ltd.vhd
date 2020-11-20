@@ -98,11 +98,16 @@ begin
 
 	-- The case separation is not yet correct! For all cases, only the detector flip flop's output and the 
 	-- reference output are compared! Correct the cases error01,error10, error010 and error101!
+	-- ref_old -> last
+	-- ref_sync2 -> ref 
+	-- det_sync2 -> det_sync2
+	-- error_int -> error_int
 	error_int <= det_sync2 xor ref_sync2;
-	error01_int <= det_sync2 xor ref_sync2;
-	error10_int <= det_sync2 xor ref_sync2;
-	error010_int <= det_sync2 xor ref_sync2;
-	error101_int <= det_sync2 xor ref_sync2;
+	
+	error01_int  <= error_int and(not ref_old and ref_sync2);
+	error10_int  <= error_int and(ref_old and not ref_sync2);
+	error010_int <= error_int and not(ref_old or  ref_sync2);
+	error101_int <= error_int and(ref_old and ref_sync2);
 
 	error_inst : d_ff
 	port map (
