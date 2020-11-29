@@ -9,7 +9,7 @@ import MeasurementInfrastructure.LTD_DFF_MTBF_SerialModule
 def worker(result_queue):
     port = '/dev/ttyUSB0'
           
-    max_data_points = 1000    
+    max_data_points = 10   
     cnt_target = 200
     max_duration_step_seconds = 2 * 3600
 
@@ -93,7 +93,7 @@ def worker(result_queue):
           };
     
     continue_measurement = True
-    while continue_measurement:
+    while continue_measurement and current_data_point < max_data_points:
         cnts = [0, 0, 0, 0, 0]
         data = [[],[],[],[],[]]
 
