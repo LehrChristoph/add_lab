@@ -9,7 +9,7 @@ import MeasurementInfrastructure.LTD_DFF_MTBF_SerialModule
 def worker(result_queue):
     port = '/dev/ttyUSB0'
           
-    max_data_points = 10   
+    max_data_points = 100   
     cnt_target = 200
     max_duration_step_seconds = 2 * 3600
 
@@ -48,9 +48,13 @@ def worker(result_queue):
     measurement_board.calibrate()
     
     print("Setting initial alignment for the detector")
-    measurement_board.set_phase_shift_value_det(measurement_board.get_phase_shift_calibration_value_det() -
-                                                initial_steps_detector)
+    #measurement_board.set_phase_shift_value_det(measurement_board.get_phase_shift_calibration_value_det() -
+    #                                            initial_steps_detector)
+    
+    measurement_board.set_phase_shift_value_det(measurement_board.get_min_step())
 
+    max_data_points = measurement_board.get_max_step() - measurement_board.get_min_step()
+    
     print('Starting Measurement')
     print('')
 
