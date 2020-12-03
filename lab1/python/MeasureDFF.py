@@ -13,6 +13,9 @@ def worker(result_queue):
     cnt_target = 200
     max_duration_step_seconds = 2 * 3600
 
+    min_phase_shift = -3
+    max_phase_shift = 20
+
     current_data_point = 0
     start_time = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
@@ -51,10 +54,9 @@ def worker(result_queue):
     #measurement_board.set_phase_shift_value_det(measurement_board.get_phase_shift_calibration_value_det() -
     #                                            initial_steps_detector)
     
-    measurement_board.set_phase_shift_value_det(measurement_board.get_min_step())
-
-    max_data_points = measurement_board.get_max_step() - measurement_board.get_min_step()
+    measurement_board.set_phase_shift_value_det(min_phase_shift)
     
+
     print('Starting Measurement')
     print('')
 
@@ -97,7 +99,8 @@ def worker(result_queue):
           };
     
     continue_measurement = True
-    while continue_measurement and current_data_point < max_data_points:
+    ps = measurement_board.get_phase_shift_value_det()
+    while continue_measurement and ps <= max_phase_shift:
         cnts = [0, 0, 0, 0, 0]
         data = [[],[],[],[],[]]
 
@@ -108,6 +111,7 @@ def worker(result_queue):
         current = np.array([np.inf, np.inf, np.inf, np.inf, np.inf])
 
         min_cnt = 0
+        ps = measurement_board.get_phase_shift_value_det()
         while (cnts[0] + cnts[2] < cnt_target or cnts[1] + cnts[3] < cnt_target) and min_cnt < results[0]['settings']['uut_freq'] * max_duration_step_seconds:
           data_mask = measurement_board.get_mtbf_stack_empty()
           if data_mask != 31:
@@ -122,8 +126,7 @@ def worker(result_queue):
               cnts[c] += 1
               data[c] += [current[c]]
               current[c] = np.inf
-            ps = measurement_board.get_phase_shift_value_det()
-            print('%d-%fps;%s;%s' % (current_data_point, ps, time.strftime("%Y%m%d%H%M%S", time.localtime()),repr(cnts)), end='')
+            print('%d;ps=%d;%s;%s' % (current_data_point, ps, time.strftime("%Y%m%d%H%M%S", time.localtime()),repr(cnts)), end='')
             for c in candidates:
                 print(';%d;%d' % (c, data[c][-1]), end='')
             print('')
