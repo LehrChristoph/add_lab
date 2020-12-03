@@ -118,7 +118,8 @@ def worker(result_queue):
               cnts[c] += 1
               data[c] += [current[c]]
               current[c] = np.inf
-            print('%d;%s;%s' % (current_data_point, time.strftime("%Y%m%d%H%M%S", time.localtime()),repr(cnts)), end='')
+            ps = measurement_board.get_phase_shift_value_det()
+            print('%d-%fps;%s;%s' % (current_data_point, ps, time.strftime("%Y%m%d%H%M%S", time.localtime()),repr(cnts)), end='')
             for c in candidates:
                 print(';%d;%d' % (c, data[c][-1]), end='')
             print('')
