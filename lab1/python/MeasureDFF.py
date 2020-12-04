@@ -112,7 +112,10 @@ def worker(result_queue):
 
         min_cnt = 0
         ps = measurement_board.get_phase_shift_value_det()
-        while (cnts[0] + cnts[2] < cnt_target or cnts[1] + cnts[3] < cnt_target) and min_cnt < results[0]['settings']['uut_freq'] * max_duration_step_seconds:
+        iteration_start = datetime.now()
+        iteration_runtime = iteration_start-iteration_start
+        #min_cnt < results[0]['settings']['uut_freq'] * max_duration_step_seconds:
+        while (cnts[0] + cnts[2] < cnt_target or cnts[1] + cnts[3] < cnt_target) and iteration_runtime.total_seconds() < max_duration_step_seconds :
           data_mask = measurement_board.get_mtbf_stack_empty()
           if data_mask != 31:
             for i in reversed(range(5)):
@@ -130,6 +133,11 @@ def worker(result_queue):
             for c in candidates:
                 print(';%d;%d' % (c, data[c][-1]), end='')
             print('')
+          # end if
+
+          now = datetime.now()
+          iteration_runtime = now-iteration_start
+        # end while
         overflowed = measurement_board.get_mtbf_stack_overflowed()
         measurement_board.freeze_counter()
         
