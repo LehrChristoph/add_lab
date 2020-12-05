@@ -6,15 +6,22 @@ import numpy as np
 
 import MeasurementInfrastructure.LTD_DFF_MTBF_SerialModule
 
+from datetime import datetime
+from datetime import timedelta
+
 def worker(result_queue):
     port = '/dev/ttyUSB0'
           
     max_data_points = 100   
     cnt_target = 200
+
     max_duration_step_seconds = 2 * 3600
+    step_duration = timedelta(seconds = max_duration_step_seconds)
+    remaining_runtime_print_int = timedelta(minutes = 10)
 
     min_phase_shift = -3
     max_phase_shift = 20
+    
 
     current_data_point = 0
     start_time = time.strftime("%Y%m%d%H%M%S", time.localtime())
@@ -112,10 +119,15 @@ def worker(result_queue):
 
         min_cnt = 0
         ps = measurement_board.get_phase_shift_value_det()
+        print("Next Phase Shift {}".format(ps))
         iteration_start = datetime.now()
-        iteration_runtime = iteration_start-iteration_start
+        iteration_end = iteration_start + step_duration
+
+        remaining_runtime = (iteration_end - iteration_start).total_seconds()
+       
+        last_print = iteration_start
         #min_cnt < results[0]['settings']['uut_freq'] * max_duration_step_seconds:
-        while (cnts[0] + cnts[2] < cnt_target or cnts[1] + cnts[3] < cnt_target) and iteration_runtime.total_seconds() < max_duration_step_seconds :
+        while (cnts[0] + cnts[2] < cnt_target or cnts[1] + cnts[3] < cnt_target) and remaining_runtime > 0:
           data_mask = measurement_board.get_mtbf_stack_empty()
           if data_mask != 31:
             for i in reversed(range(5)):
@@ -136,7 +148,13 @@ def worker(result_queue):
           # end if
 
           now = datetime.now()
-          iteration_runtime = now-iteration_start
+          remaining_runtime = (iteration_end - now).total_seconds()
+
+          if(now-last_print > remaining_runtime_print_int):
+            print("Remaining runtime for Phase shift {}: {}".format(ps, str(iteration_end - now)))
+            last_print = now
+          # end if
+          
         # end while
         overflowed = measurement_board.get_mtbf_stack_overflowed()
         measurement_board.freeze_counter()
