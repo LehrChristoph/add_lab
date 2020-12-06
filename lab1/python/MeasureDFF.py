@@ -118,7 +118,7 @@ def worker(result_queue):
         current = np.array([np.inf, np.inf, np.inf, np.inf, np.inf])
 
         min_cnt = 0
-        ps = measurement_board.get_phase_shift_value_det()
+        
         print("Next Phase Shift {}".format(ps))
         iteration_start = datetime.now()
         iteration_end = iteration_start + step_duration
@@ -190,6 +190,9 @@ def worker(result_queue):
           
         measurement_board.increment_phase_shift_det()
         current_data_point += 1
+        ps = measurement_board.get_phase_shift_value_det()
+    # end while
+# end def
 
 if __name__ == '__main__':
     worker(None)
