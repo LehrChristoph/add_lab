@@ -111,7 +111,10 @@ def generate_figures(datasets, export_folder):
         plot_mtbu(dataset,folder)
         plot_fr(dataset,folder)
         plot_tbu_distribution(dataset,folder)
-    # end def
+    # end for
+    folder = os.path.join(export_folder, "comparisons")
+    plot_mtbu_comparision(datasets, folder)
+    plot_fr_comparision(datasets, folder)
 # end def
 
 def plot_mtbu(dataset, export_folder):
@@ -249,6 +252,102 @@ def plot_tbu_distribution(dataset, export_folder):
         os.makedirs(export_folder)
     # end if
     filepath = os.path.join(export_folder, 'tbu_distribution.jpeg')
+    plt.savefig(filepath)
+    plt.close()
+# end def
+
+def plot_mtbu_comparision(datasets,export_folder):
+    legend = []
+    max_Tr= -np.inf
+    min_Tr= np.inf
+    
+    for dataset_name in datasets:
+        dataset = datasets[dataset_name]["data"]
+        mtbu = np.array(dataset["mtbu"])
+        t_res = np.array(dataset["t_res"])*10**12 # Plot in ps
+
+        mtbu_mask = np.isfinite(mtbu.astype(np.double))
+        plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
+        legend.append(dataset_name.replace("_", " "))
+
+        lastTr = t_res[np.isfinite(np.array(dataset["mtbu"]))][-1]
+        if(lastTr > max_Tr):
+            max_Tr = lastTr
+        # end if
+
+        firstTr = t_res[np.isfinite(np.array(dataset["mtbu"]))][0]
+        if(firstTr < min_Tr):
+            min_Tr = firstTr
+        # end if
+
+    # end for
+
+    plt.title('MTBU')
+    plt.yscale("log")
+    plt.grid(which='both')
+
+    plt.ylabel('MTBU (s)')
+    plt.xlabel('Resolution time (ps)')
+
+    plt.yticks([10**i for i in range(-8, 5)])
+    plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200) )
+
+    plt.legend(legend)
+
+    if not os.path.exists(export_folder):
+        os.makedirs(export_folder)
+    # end if
+
+    filepath = os.path.join(export_folder, 'MTBU_comparison.jpeg')
+    plt.xlim(min_Tr, max_Tr)
+    plt.savefig(filepath)
+    plt.close()
+# end def
+
+def plot_fr_comparision(datasets,export_folder):
+    legend = []
+    max_Tr= -np.inf
+    min_Tr= np.inf
+    
+    for dataset_name in datasets:
+        dataset = datasets[dataset_name]["data"]
+        mtbu = np.array(dataset["fr"])
+        t_res = np.array(dataset["t_res"])*10**12 # Plot in ps
+
+        mtbu_mask = np.isfinite(mtbu.astype(np.double))
+        plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
+        legend.append(dataset_name.replace("_", " "))
+
+        lastTr = t_res[np.isfinite(np.array(dataset["fr"]))][-1]
+        if(lastTr > max_Tr):
+            max_Tr = lastTr
+        # end if
+
+        firstTr = t_res[np.isfinite(np.array(dataset["fr"]))][0]
+        if(firstTr < min_Tr):
+            min_Tr = firstTr
+        # end if
+
+    # end for
+
+    plt.title('Failure Rate')
+    plt.yscale("log")
+    plt.grid(which='both')
+
+    plt.ylabel('Failure Rate (1/s)')
+    plt.xlabel('Resolution time (ps)')
+
+    plt.yticks([10**i for i in range(-8, 5)])
+    plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200) )
+
+    plt.legend(legend)
+
+    if not os.path.exists(export_folder):
+        os.makedirs(export_folder)
+    # end if
+
+    filepath = os.path.join(export_folder, 'FR_comparison.jpeg')
+    plt.xlim(min_Tr, max_Tr)
     plt.savefig(filepath)
     plt.close()
 # end def
