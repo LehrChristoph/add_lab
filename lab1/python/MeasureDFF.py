@@ -151,7 +151,7 @@ def worker(result_queue):
           remaining_runtime = (iteration_end - now).total_seconds()
 
           if(now-last_print > remaining_runtime_print_int):
-            print("Remaining runtime for Phase shift {}: {}".format(ps, str(iteration_end - now)))
+            print("[{}] Remaining runtime for Phase shift {}: {}".format(str(now), ps, str(iteration_end - now)))
             last_print = now
           # end if
           
