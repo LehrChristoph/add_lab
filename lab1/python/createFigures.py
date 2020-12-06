@@ -1,7 +1,11 @@
 import os
-import numpy as np 
+import math
+import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from pprint import pprint
+matplotlib.use("Agg")
+
 
 def import_data(import_folder):
     data = {}
@@ -21,12 +25,11 @@ def import_data(import_folder):
 
 def do_calculations(datasets):
     for dataset_name in datasets:
-        lambda_dat = 2*56*10**6 
+        lambda_dat = 2*56*10**6
         dataset = datasets[dataset_name]
         f_clk = dataset["settings"]['uut_freq']
-        T_clk = 1/f_clk
         dataset["settings"]['ps_mult'] = 104.16 * 10**-12 #104.16 pico seconds
-        
+
         calculate_tbu_mtbu(dataset)
         calculate_t_res(dataset)
         [tau,offset] = calculate_T0_tau(dataset["data"]["t_res"], dataset["data"]["mtbu"])
@@ -37,70 +40,29 @@ def do_calculations(datasets):
 #end def
 
 def calculate_tbu_mtbu(dataset):
+    upsetTypes = ["", "_0to0", "_0to1", "_1to0", "_1to1"]
     datapoint_cnt = dataset["settings"]['last_data_point'] +1
-    dataset["data"]["mtbu"] = [None]*datapoint_cnt
-    dataset["data"]["mtbu_0to0"] = [None]*datapoint_cnt
-    dataset["data"]["mtbu_0to1"] = [None]*datapoint_cnt
-    dataset["data"]["mtbu_1to1"] = [None]*datapoint_cnt
-    dataset["data"]["mtbu_1to0"] = [None]*datapoint_cnt
-
-    dataset["data"]["fr"] = [None]*datapoint_cnt
-    dataset["data"]["fr_0to0"] = [None]*datapoint_cnt
-    dataset["data"]["fr_0to1"] = [None]*datapoint_cnt
-    dataset["data"]["fr_1to1"] = [None]*datapoint_cnt
-    dataset["data"]["fr_1to0"] = [None]*datapoint_cnt
-
-    dataset["data"]["tbu"] = [None]*datapoint_cnt
-    dataset["data"]["tbu_0to0"] = [None]*datapoint_cnt
-    dataset["data"]["tbu_0to1"] = [None]*datapoint_cnt
-    dataset["data"]["tbu_1to1"] = [None]*datapoint_cnt
-    dataset["data"]["tbu_1to0"] = [None]*datapoint_cnt
+    for t in upsetTypes:
+        dataset["data"][f"mtbu{t}"] = [None]*datapoint_cnt
+        dataset["data"][f"fr{t}"] = [None]*datapoint_cnt
+        dataset["data"][f"tbu{t}"] = [None]*datapoint_cnt
 
     for datapoint_id in range(0, datapoint_cnt):
-        run_upsets = dataset["data"]["upset_times"][datapoint_id]
-        tbu = []
-        for index in range(0, run_upsets.size-1):
-            tbu.append(run_upsets[index+1] - run_upsets[index])
-        # end for
-        dataset["data"]["tbu"][datapoint_id] = tbu/f_clk
-        dataset["data"]["mtbu"][datapoint_id] = np.mean(tbu)
-        dataset["data"]["fr"][datapoint_id] = 1/np.mean(tbu)
+        def calculateNumbers(dataset, keyPostfix):
+            f_clk = dataset["settings"]['uut_freq']
+            T_clk = 1/f_clk
+            tbu = []
+            upsetTimes = dataset["data"][f"upset_times{keyPostfix}"][datapoint_id]
+            for ts, nextTs in zip(upsetTimes, upsetTimes[1:]): # Get pairs i, i+1
+                tbu.append(T_clk * (nextTs - ts))
+            # end for
+            dataset["data"][f"tbu{keyPostfix}"][datapoint_id] = tbu
+            dataset["data"][f"mtbu{keyPostfix}"][datapoint_id] = np.mean(tbu)
+            dataset["data"][f"fr{keyPostfix}"][datapoint_id] = 1/np.mean(tbu)
+        # end def
 
-        run_upsets = dataset["data"]["upset_times_0to0"][datapoint_id]
-        tbu = []
-        for index in range(0, run_upsets.size-1):
-            tbu.append(run_upsets[index+1] - run_upsets[index])
-        # end for
-        dataset["data"]["tbu_0to0"][datapoint_id] = tbu/f_clk
-        dataset["data"]["mtbu_0to0"][datapoint_id] = np.mean(tbu)
-        dataset["data"]["fr_0to0"][datapoint_id] = 1/np.mean(tbu)
-        
-        run_upsets = dataset["data"]["upset_times_0to1"][datapoint_id]
-        tbu = []
-        for index in range(0, run_upsets.size-1):
-            tbu.append(run_upsets[index+1] - run_upsets[index])
-        # end for
-        dataset["data"]["tbu_0to1"][datapoint_id] = tbu/f_clk
-        dataset["data"]["mtbu_0to1"][datapoint_id] = np.mean(tbu)
-        dataset["data"]["fr_0to1"][datapoint_id] = 1/np.mean(tbu)
-
-        run_upsets = dataset["data"]["upset_times_1to1"][datapoint_id]
-        tbu = []
-        for index in range(0, run_upsets.size-1):
-            tbu.append(run_upsets[index+1] - run_upsets[index])
-        # end for
-        dataset["data"]["tbu_1to1"][datapoint_id] = tbu/f_clk
-        dataset["data"]["mtbu_1to1"][datapoint_id] = np.mean(tbu)
-        dataset["data"]["fr_1to1"][datapoint_id] = 1/np.mean(tbu)
-
-        run_upsets = dataset["data"]["upset_times_1to0"][datapoint_id]
-        tbu = []
-        for index in range(0, run_upsets.size-1):
-            tbu.append(run_upsets[index+1] - run_upsets[index])
-        # end for
-        dataset["data"]["tbu_1to0"][datapoint_id] = tbu/f_clk
-        dataset["data"]["mtbu_1to0"][datapoint_id] = np.mean(tbu)
-        dataset["data"]["fr_1to0"][datapoint_id] = 1/np.mean(tbu)
+        for t in upsetTypes:
+            calculateNumbers(dataset, t)
     # end for
 # end def
 
@@ -110,12 +72,7 @@ def calculate_t_res(dataset):
     ps_mult = dataset["settings"]['ps_mult']
     for datapoint_id in range(0, datapoint_cnt):
         ps_val = dataset["data"]["ps_values"][datapoint_id]
-        if ps_val > 99:
-            dataset["data"]["t_res"][datapoint_id] = ps_val - np.iinfo(np.uint32).max #4294967296
-        else:
-            dataset["data"]["t_res"][datapoint_id] = ps_val
-        # end if
-        dataset["data"]["t_res"][datapoint_id] = dataset["data"]["t_res"][datapoint_id] * ps_mult
+        dataset["data"]["t_res"][datapoint_id] = np.int32(ps_val) * ps_mult
     # end for
 # end def
 
@@ -158,31 +115,36 @@ def generate_figures(datasets, export_folder):
 # end def
 
 def plot_mtbu(dataset, export_folder):
-    t_res = np.array(dataset["data"]["t_res"])
+    t_res = np.array(dataset["data"]["t_res"])*10**12 # Plot in ps
 
-    mtbu = np.array(dataset["data"]["mtbu"])
-    mtbu_mask = np.isfinite(mtbu.astype(np.double))
+    plots = [
+        ("Total", ""),
+        ("1to0" , "_1to0"),
+        ("0to1" , "_0to1"),
+        ("0to0" , "_0to0"),
+        ("1to1" , "_1to1"),
+    ]
 
-    mtbu_0to0 = np.array(dataset["data"]["mtbu_0to0"])
-    mtbu_0to0_mask = np.isfinite(mtbu_0to0.astype(np.double))
+    for _, postfix in plots:
+        mtbu = np.array(dataset["data"][f"mtbu{postfix}"])
+        mtbu_mask = np.isfinite(mtbu.astype(np.double))
+        plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
+    # end for
 
-    mtbu_0to1 = np.array(dataset["data"]["mtbu_0to1"])
-    mtbu_0to1_mask = np.isfinite(mtbu_0to1.astype(np.double))
-
-    mtbu_1to1 = np.array(dataset["data"]["mtbu_1to1"])
-    mtbu_1to1_mask = np.isfinite(mtbu_1to1.astype(np.double))
-
-    mtbu_1to0 = np.array(dataset["data"]["mtbu_1to0"])
-    mtbu_1to0_mask = np.isfinite(mtbu_1to0.astype(np.double))
-
-    plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
-    plt.plot(t_res[mtbu_0to0_mask], mtbu_0to0[mtbu_0to0_mask])
-    plt.plot(t_res[mtbu_0to1_mask], mtbu_0to1[mtbu_0to1_mask])
-    plt.plot(t_res[mtbu_1to1_mask], mtbu_1to1[mtbu_1to1_mask])
-    plt.plot(t_res[mtbu_1to0_mask], mtbu_1to0[mtbu_1to0_mask])
-    plt.xscale("log")
-    plt.yscale("log")
     plt.title('MTBU')
+    plt.yscale("log")
+    plt.grid(which='both')
+
+    plt.ylabel('MTBU (s)')
+    plt.xlabel('Resolution time (ps)')
+
+    lastTr = t_res[np.isfinite(np.array(dataset["data"]["mtbu"]))][-1]
+
+    plt.yticks([10**i for i in range(-8, 5)])
+    plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200) )
+
+
+    plt.legend([elem[0] for elem in plots])
 
     if not os.path.exists(export_folder):
         os.makedirs(export_folder)
@@ -194,31 +156,36 @@ def plot_mtbu(dataset, export_folder):
 # end def
 
 def plot_fr(dataset, export_folder):
-    t_res = np.array(dataset["data"]["t_res"])
+    t_res = np.array(dataset["data"]["t_res"])*10**12 # Plot in ps
 
-    fr = np.array(dataset["data"]["fr"])
-    fr_mask = np.isfinite(fr.astype(np.double))
+    plots = [
+        ("Total", ""),
+        ("1to0" , "_1to0"),
+        ("0to1" , "_0to1"),
+        ("0to0" , "_0to0"),
+        ("1to1" , "_1to1"),
+    ]
 
-    fr_0to0 = np.array(dataset["data"]["fr_0to0"])
-    fr_0to0_mask = np.isfinite(fr_0to0.astype(np.double))
+    for _, postfix in plots:
+        fr = np.array(dataset["data"][f"fr{postfix}"])
+        fr_mask = np.isfinite(fr.astype(np.double))
+        plt.plot(t_res[fr_mask], fr[fr_mask])
+    # end for
 
-    fr_0to1 = np.array(dataset["data"]["fr_0to1"])
-    fr_0to1_mask = np.isfinite(fr_0to1.astype(np.double))
-
-    fr_1to1 = np.array(dataset["data"]["fr_1to1"])
-    fr_1to1_mask = np.isfinite(fr_1to1.astype(np.double))
-
-    fr_1to0 = np.array(dataset["data"]["fr_1to0"])
-    fr_1to0_mask = np.isfinite(fr_1to0.astype(np.double))
-
-    plt.plot(t_res[fr_mask], fr[fr_mask])
-    plt.plot(t_res[fr_0to0_mask], fr_0to0[fr_0to0_mask])
-    plt.plot(t_res[fr_0to1_mask], fr_0to1[fr_0to1_mask])
-    plt.plot(t_res[fr_1to1_mask], fr_1to1[fr_1to1_mask])
-    plt.plot(t_res[fr_1to0_mask], fr_1to0[fr_1to0_mask])
-    plt.xscale("log")
     plt.yscale("log")
     plt.title('Failure Rate')
+    plt.grid(which='both')
+
+    plt.ylabel('Failure rate (s$^{-1}$)')
+    plt.xlabel('Resolution time (ps)')
+
+    lastTr = t_res[np.isfinite(np.array(dataset["data"]["fr"]))][-1]
+
+    plt.yticks([10**i for i in range(-4, 9)])
+    plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200))
+
+
+    plt.legend([elem[0] for elem in plots])
 
     if not os.path.exists(export_folder):
         os.makedirs(export_folder)
@@ -231,16 +198,16 @@ def plot_fr(dataset, export_folder):
 def plot_tbu_distribution(dataset, export_folder):
     tbu_list = []
     t_res = []
-    
+
     elements = len(dataset["data"]["tbu"])
 
     for i in range(elements):
         tbu_list.extend(dataset["data"]["tbu"][i])
-    # end for 
-    
+    # end for
+
     total_tbu = np.array(tbu_list)
     tbu_bins = np.logspace(np.log10(total_tbu.min()), np.log10(total_tbu.max()), num=15)
-    
+
     tbu_hist = []
     t_res_hist = []
 
@@ -258,17 +225,17 @@ def plot_tbu_distribution(dataset, export_folder):
         if(tmp.size > 0 ):
             j =0
             for entry in tmp.tolist():
-                
+
                 if(entry != 0 and entry != np.nan):
                     x.append(dataset["data"]["t_res"][i] )
                     y.append(j)#tbu_bins[j])
-                    dz.append(entry)               
+                    dz.append(entry)
                 # end fi
-                
+
                 j+=1
             # end for
-            
-            
+
+
             #tbu_hist.extend(tmp.tolist())
             #t_res = dataset["data"]["t_res"][i]
             #t_res_hist.extend( [t_res] * tmp.size )
@@ -278,7 +245,7 @@ def plot_tbu_distribution(dataset, export_folder):
     z =  [0] * len(x)      # z coordinates of each bar
     dx = [dataset["settings"]['ps_mult']] * len(x) #, 0.5, 0.5]  # Width of each bar
     dy = [1] * len(x) #, 0.5, 0.5]  # Depth of each bar
-    
+
     print("x:", x)
     print("y:", y)
     print("z:", z)
@@ -293,7 +260,14 @@ def plot_tbu_distribution(dataset, export_folder):
     ax.set_zlim3d(min(y),max(y))
     ax.set_zlim3d(min(dz),max(dz))
     #ax.set_yscale('log')
-    plt.show()
+    #plt.show()
+
+    if not os.path.exists(export_folder):
+        os.makedirs(export_folder)
+    # end if
+    filepath = os.path.join(export_folder, '3d_histogram.jpeg')
+    plt.savefig(filepath)
+    plt.close()
 # end def
 
 if __name__ == "__main__":
