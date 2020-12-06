@@ -206,7 +206,7 @@ def plot_tbu_distribution(dataset, export_folder):
     # end for
 
     total_tbu = np.array(tbu_list)
-    tbu_bins = np.logspace(np.log10(total_tbu.min()), np.log10(total_tbu.max()), num=15)
+    tbu_bins = np.logspace(np.log10(total_tbu.min()), np.log10(total_tbu.max()), num=30)
 
     tbu_hist = []
     t_res_hist = []
@@ -219,8 +219,6 @@ def plot_tbu_distribution(dataset, export_folder):
         dp_tbus = dataset["data"]["tbu"][i]
         hist, edges = np.histogram(dp_tbus, bins=tbu_bins)
         tmp = np.array(hist)/len(dp_tbus)
-        #tmp = np.delete(tmp, np.argwhere(tmp == 0))
-        #tmp = tmp[np.logical_not(np.isnan(tmp))]
 
         if(tmp.size > 0 ):
             j =0
@@ -230,15 +228,9 @@ def plot_tbu_distribution(dataset, export_folder):
                     x.append(dataset["data"]["t_res"][i] )
                     y.append(j)#tbu_bins[j])
                     dz.append(entry)
-                # end fi
-
+                # end if
                 j+=1
             # end for
-
-
-            #tbu_hist.extend(tmp.tolist())
-            #t_res = dataset["data"]["t_res"][i]
-            #t_res_hist.extend( [t_res] * tmp.size )
         # end if
     # end for
 
@@ -246,26 +238,17 @@ def plot_tbu_distribution(dataset, export_folder):
     dx = [dataset["settings"]['ps_mult']] * len(x) #, 0.5, 0.5]  # Width of each bar
     dy = [1] * len(x) #, 0.5, 0.5]  # Depth of each bar
 
-    print("x:", x)
-    print("y:", y)
-    print("z:", z)
-    print("dx:", dx)
-    print("dy:", dy)
-    print("dz:", dz)
-
     fig = plt.figure()          #create a canvas, tell matplotlib it's 3d
     ax = fig.add_subplot(111, projection='3d')
     ax.bar3d(x, y, z, dx, dy, dz)
     ax.set_xlim3d(min(x),max(x))
     ax.set_zlim3d(min(y),max(y))
     ax.set_zlim3d(min(dz),max(dz))
-    #ax.set_yscale('log')
-    #plt.show()
 
     if not os.path.exists(export_folder):
         os.makedirs(export_folder)
     # end if
-    filepath = os.path.join(export_folder, '3d_histogram.jpeg')
+    filepath = os.path.join(export_folder, 'tbu_distribution.jpeg')
     plt.savefig(filepath)
     plt.close()
 # end def
