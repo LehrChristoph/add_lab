@@ -62,7 +62,7 @@ def calculate_tbu_mtbu(dataset):
         for index in range(0, run_upsets.size-1):
             tbu.append(run_upsets[index+1] - run_upsets[index])
         # end for
-        dataset["data"]["tbu"][datapoint_id] = tbu
+        dataset["data"]["tbu"][datapoint_id] = tbu/f_clk
         dataset["data"]["mtbu"][datapoint_id] = np.mean(tbu)
         dataset["data"]["fr"][datapoint_id] = 1/np.mean(tbu)
 
@@ -71,7 +71,7 @@ def calculate_tbu_mtbu(dataset):
         for index in range(0, run_upsets.size-1):
             tbu.append(run_upsets[index+1] - run_upsets[index])
         # end for
-        dataset["data"]["tbu_0to0"][datapoint_id] = tbu
+        dataset["data"]["tbu_0to0"][datapoint_id] = tbu/f_clk
         dataset["data"]["mtbu_0to0"][datapoint_id] = np.mean(tbu)
         dataset["data"]["fr_0to0"][datapoint_id] = 1/np.mean(tbu)
         
@@ -80,7 +80,7 @@ def calculate_tbu_mtbu(dataset):
         for index in range(0, run_upsets.size-1):
             tbu.append(run_upsets[index+1] - run_upsets[index])
         # end for
-        dataset["data"]["tbu_0to1"][datapoint_id] = tbu
+        dataset["data"]["tbu_0to1"][datapoint_id] = tbu/f_clk
         dataset["data"]["mtbu_0to1"][datapoint_id] = np.mean(tbu)
         dataset["data"]["fr_0to1"][datapoint_id] = 1/np.mean(tbu)
 
@@ -89,7 +89,7 @@ def calculate_tbu_mtbu(dataset):
         for index in range(0, run_upsets.size-1):
             tbu.append(run_upsets[index+1] - run_upsets[index])
         # end for
-        dataset["data"]["tbu_1to1"][datapoint_id] = tbu
+        dataset["data"]["tbu_1to1"][datapoint_id] = tbu/f_clk
         dataset["data"]["mtbu_1to1"][datapoint_id] = np.mean(tbu)
         dataset["data"]["fr_1to1"][datapoint_id] = 1/np.mean(tbu)
 
@@ -98,7 +98,7 @@ def calculate_tbu_mtbu(dataset):
         for index in range(0, run_upsets.size-1):
             tbu.append(run_upsets[index+1] - run_upsets[index])
         # end for
-        dataset["data"]["tbu_1to0"][datapoint_id] = tbu
+        dataset["data"]["tbu_1to0"][datapoint_id] = tbu/f_clk
         dataset["data"]["mtbu_1to0"][datapoint_id] = np.mean(tbu)
         dataset["data"]["fr_1to0"][datapoint_id] = 1/np.mean(tbu)
     # end for
