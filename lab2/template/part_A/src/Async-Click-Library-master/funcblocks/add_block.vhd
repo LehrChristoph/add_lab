@@ -7,6 +7,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use work.defs.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
+use work.delay_element_pkg.all;
 
 entity add_block is
   generic ( 

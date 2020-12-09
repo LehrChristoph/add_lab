@@ -4,6 +4,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use work.delay_element_pkg.all;
 use work.defs.all;
 
 entity sel_a_larger_b is

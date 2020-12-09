@@ -4,6 +4,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use work.delay_element_pkg.all;
 use work.defs.all;
 
 entity sel_a_not_b is
