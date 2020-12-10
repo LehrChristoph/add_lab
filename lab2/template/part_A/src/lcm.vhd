@@ -201,12 +201,12 @@ architecture STRUCTURE of lcm is
 	signal reg3_AB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal reg3_AB_o_ack, reg3_AB_o_req: std_logic;
 	
-	signal de2_AsumA_data, de2_BsumB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal de2_AsumA_o_ack, de2_AsumA_o_req, de2_BsumB_o_ack, de2_BsumB_o_req: std_logic;
+	signal de2_sumA_data, de2_sumB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal de2_sumA_o_ack, de2_sumA_o_req, de2_sumB_o_ack, de2_sumB_o_req: std_logic;
 	
-	signal de3_AsumA_data, de3_BsumB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal de3_AsumA_o_ack, de3_AsumA_o_req, de3_BsumB_o_ack, de3_BsumB_o_req: std_logic;
-	
+	signal de3_A_data, de3_B_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal de3_A_o_ack, de3_A_o_req, de3_B_o_ack, de3_B_o_req: std_logic;
+
 	signal j0_AsumA_o_ack, j0_AsumA_o_req, j1_BsumB_o_ack, j1_BsumB_o_req: std_logic;
 	
 	signal add0_AsumA_data, add1_BsumB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -238,9 +238,9 @@ m0_summand_select: component mux
 		DATA_WIDTH => DATA_WIDTH
 	)
    port map (
-    inA_ack => f0_AB_o_req,
+    inA_ack => f0_AB_o_ack,
     inA_data => AB,
-    inA_req => f0_AB_o_ack,
+    inA_req => f0_AB_o_req,
     inB_ack => fr0_AB_o_ack,
     inB_data => fr0_AB_data,
     inB_req => fr0_AB_o_req,
@@ -295,9 +295,9 @@ m1_sum_select: component mux
 		DATA_WIDTH => DATA_WIDTH
 	)
    port map (
-    inA_ack => f0_sumAB_o_req,
+    inA_ack => f0_sumAB_o_ack,
     inA_data => AB,
-    inA_req => f0_sumAB_o_ack,
+    inA_req => f0_sumAB_o_req,
     inB_ack => reg4_sumAB_o_ack,
     inB_data => reg4_sumAB_data,
     inB_req => reg4_sumAB_o_req,
@@ -346,8 +346,8 @@ sel0_select_in_output: component sel_a_not_b
 -- fork input output selector signal
 f1_fork_select_in_output: component fork
   port map(rst => rst,
-    inA_req => sel0_sumNotEq_o_ack,
-    inA_ack => sel0_sumNotEq_o_req,
+    inA_req => sel0_sumNotEq_o_req,
+    inA_ack => sel0_sumNotEq_o_ack,
     outB_req => f1_select_input_o_req,
     outB_ack => f1_select_input_o_ack,
     outC_req => f1_select_output_o_req,
@@ -393,8 +393,8 @@ reg2_register_input_select_2: entity work.decoupled_hs_reg
  -- fork input output selector signal
 f2_fork_select_input: component fork
   port map(rst => rst,
-    inA_req => reg1_sumNotEq_o_ack,
-    inA_ack => reg1_sumNotEq_o_req,
+    inA_req => reg1_sumNotEq_o_req,
+    inA_ack => reg1_sumNotEq_o_ack,
     outB_req => f2_select_input_AB_o_req,
     outB_ack => f2_select_input_AB_o_ack,
     outC_req => f2_select_input_sumAB_o_req,
@@ -424,21 +424,24 @@ de0_set_result: component demux
 
 -- fork sumAB for calculation
 fr2_fork_register_calculation_sumAB: entity work.reg_fork
-   generic map(PHASE_INIT_A => '0',
-    PHASE_INIT_B =>'0',
-    PHASE_INIT_C => '0')
-   port map (
-    inA_ack => de0_sumAB_o_ack,
-    inA_data => de0_sumAB_data,
-    inA_req => de0_sumAB_o_req,
-    outB_ack => fr2_sumAB_o_ack,
-    outB_data => fr2_sumAB_data,
-    outB_req => fr2_sumAB_o_req,
-    outC_ack => fr2_sumAB_select_o_ack,
-    outC_data=> fr2_sumAB_select_data,
-    outC_req => fr2_sumAB_select_o_req,
-    rst => rst
-  ); 
+	generic map(
+		DATA_WIDTH => DATA_WIDTH,
+		PHASE_INIT_A => '0',
+		PHASE_INIT_B =>'0',
+		PHASE_INIT_C => '0'
+	)
+	port map (
+		inA_ack => de0_sumAB_o_ack,
+		inA_data => de0_sumAB_data,
+		inA_req => de0_sumAB_o_req,
+		outB_ack => fr2_sumAB_o_ack,
+		outB_data => fr2_sumAB_data,
+		outB_req => fr2_sumAB_o_req,
+		outC_ack => fr2_sumAB_select_o_ack,
+		outC_data=> fr2_sumAB_select_data,
+		outC_req => fr2_sumAB_select_o_req,
+		rst => rst
+	); 
 
 sel1_sum_select_cond: component sel_a_larger_b
 	generic map(
@@ -456,8 +459,8 @@ sel1_sum_select_cond: component sel_a_larger_b
 -- fork input sumA > sumB
 f3_fork_select_calculation: component fork
   port map(rst => rst,
-    inA_req => sel1_sumAGreater_o_ack,
-    inA_ack => sel1_sumAGreater_o_req,
+    inA_req => sel1_sumAGreater_o_req,
+    inA_ack => sel1_sumAGreater_o_ack,
     outB_req => f3_select_sumA_o_req,
     outB_ack => f3_select_sumA_o_ack,
     outC_req => f3_select_A_o_req,
@@ -473,12 +476,12 @@ de2_set_sumA: component demux
     inA_ack => fr2_sumAB_o_ack,
     inA_data => fr2_sumAB_data,
     inA_req => fr2_sumAB_o_req,
-    outB_ack => de2_AsumA_o_ack,
-    outB_data => de2_AsumA_data,
-    outB_req => de2_AsumA_o_req,
-    outC_ack => de2_BsumB_o_ack,
-    outC_data => de2_BsumB_data,
-    outC_req => de2_BsumB_o_req,
+    outB_ack => de2_sumA_o_ack,
+    outB_data => de2_sumA_data,
+    outB_req => de2_sumA_o_req,
+    outC_ack => de2_sumB_o_ack,
+    outC_data => de2_sumB_data,
+    outC_req => de2_sumB_o_req,
     rst => rst,
     inSel_ack => f3_select_sumA_o_ack,
     inSel_req => f3_select_sumA_o_req,
@@ -494,12 +497,12 @@ de3_set_sumA: component demux
     inA_ack => reg3_AB_o_ack,
     inA_data => reg3_AB_data,
     inA_req => reg3_AB_o_req,
-    outB_ack => de3_AsumA_o_ack,
-    outB_data => de3_AsumA_data,
-    outB_req => de3_AsumA_o_req,
-    outC_ack => de3_BsumB_o_ack,
-    outC_data => de3_BsumB_data,
-    outC_req => de3_BsumB_o_req,
+    outB_ack => de3_A_o_ack,
+    outB_data => de3_A_data,
+    outB_req => de3_A_o_req,
+    outC_ack => de3_B_o_ack,
+    outC_data => de3_B_data,
+    outC_req => de3_B_o_req,
     rst => rst,
     inSel_ack => f3_select_A_o_ack,
     inSel_req => f3_select_A_o_req,
@@ -508,12 +511,11 @@ de3_set_sumA: component demux
 
 j0_sumA_plus_A: component join 
 	  port map(
-		 
 		 --UPSTREAM channels
-		 inA_req => de2_AsumA_o_req,
-		 inA_ack => de2_AsumA_o_ack,
-		 inB_req => de3_AsumA_o_req,
-		 inB_ack => de3_AsumA_o_ack,
+		 inA_req => de2_sumA_o_req,
+		 inA_ack => de2_sumA_o_ack,
+		 inB_req => de3_A_o_req,
+		 inB_ack => de3_A_o_ack,
 		 --DOWNSTREAM channel
 		 outC_req => j0_AsumA_o_req,
 		 outC_ack => j0_AsumA_o_ack,
@@ -523,10 +525,10 @@ j1_sumB_plus_B: component join
 	  port map(
 		 
 		 --UPSTREAM channels
-		 inA_req => de2_BsumB_o_req,
-		 inA_ack => de2_BsumB_o_ack,
-		 inB_req => de3_BsumB_o_req,
-		 inB_ack => de3_BsumB_o_ack,
+		 inA_req => de2_sumB_o_req,
+		 inA_ack => de2_sumB_o_ack,
+		 inB_req => de3_B_o_req,
+		 inB_ack => de3_B_o_ack,
 		 --DOWNSTREAM channel
 		 outC_req => j1_BsumB_o_req,
 		 outC_ack => j1_BsumB_o_ack,
@@ -535,14 +537,15 @@ j1_sumB_plus_B: component join
 -- sumA + A 
 add0_A_sumA: component add_block 
 	  generic map(
-			DATA_WIDTH => DATA_WIDTH/2
+			DATA_WIDTH => DATA_WIDTH
 	  )
 	  port map (
 	    -- Input channel
 		 in_req => j0_AsumA_o_req,
 		 in_ack => j0_AsumA_o_ack,
-		 inA_data  => de2_AsumA_data(DATA_WIDTH - 1 downto DATA_WIDTH/2),
-		 inB_data  => de3_AsumA_data(DATA_WIDTH - 1 downto DATA_WIDTH/2),
+		 inA_data  => de2_sumA_data,
+		 inB_data(DATA_WIDTH   -1 downto DATA_WIDTH/2) => de3_A_data(DATA_WIDTH-1 downto DATA_WIDTH/2),
+		 inB_data(DATA_WIDTH/2 -1 downto            0) => (others => '0'),
 		 -- Output channel
 		 out_req => add0_AsumA_o_req,
 		 out_ack  => add0_AsumA_o_ack,
@@ -552,14 +555,15 @@ add0_A_sumA: component add_block
 -- sumB + B
 add1_B_sumB: component add_block 
 		generic map(
-			DATA_WIDTH => DATA_WIDTH/2
+			DATA_WIDTH => DATA_WIDTH
 		)
 		port map (
 			-- Input channel
 			in_req => j1_BsumB_o_req,
 			in_ack => j1_BsumB_o_ack,
-			inA_data => de2_BsumB_data(DATA_WIDTH/2 - 1 downto 0),
-			inB_data => de3_BsumB_data(DATA_WIDTH/2 - 1 downto 0),
+			inA_data => de2_sumB_data,
+			inB_data(DATA_WIDTH   -1 downto DATA_WIDTH/2) => (others => '0'),
+			inB_data(DATA_WIDTH/2 -1 downto            0) => de3_B_data(DATA_WIDTH/2 -1 downto 0),
 			-- Output channel
 			out_req => add1_BsumB_o_req,
 			out_ack  => add1_BsumB_o_ack,
