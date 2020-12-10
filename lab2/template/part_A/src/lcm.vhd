@@ -127,6 +127,8 @@ architecture STRUCTURE of lcm is
   end component merge;
   
   component add_block is
+	  generic ( 
+			DATA_WIDTH: natural := DATA_WIDTH);
 	  port (-- Input channel
 		 in_req    : in std_logic;
 		 in_ack    : out std_logic;
@@ -167,8 +169,8 @@ architecture STRUCTURE of lcm is
 	signal fr1_sumAB_select_data : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal fr1_sumAB_select_o_ack, fr1_sumAB_select_o_req: std_logic;
 	
-	signal fr1_sumAB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal fr1_sumAB_o_ack, fr1_sumAB_o_req: std_logic;
+	signal fr1_sumAB_data,fr1_summand_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal fr1_sumAB_o_ack, fr1_sumAB_o_req, fr1_summand_o_ack, fr1_summand_o_req: std_logic;
 	
 	signal sel0_sumNotEq_data, sel0_sumNotEq_o_ack, sel0_sumNotEq_o_req: std_logic;
 	
@@ -188,7 +190,9 @@ architecture STRUCTURE of lcm is
 	signal sel1_sumAGreater_data, sel1_sumAGreater_o_ack, sel1_sumAGreater_o_req: std_logic;
 	
 	signal f3_select_sumA_o_ack, f3_select_sumA_o_req, f3_select_A_o_ack, f3_select_A_o_req: std_logic;
-	signal reg3_AB_data, reg3_AB_o_ack, reg3_AB_o_req: std_logic;
+	
+	signal reg3_AB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal reg3_AB_o_ack, reg3_AB_o_req: std_logic;
 	
 	signal de2_AsumA_data, de2_BsumB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal de2_AsumA_o_ack, de2_AsumA_o_req, de2_BsumB_o_ack, de2_BsumB_o_req: std_logic;
@@ -213,8 +217,8 @@ begin
 -- fork input AB to AB and sumA sumB
 f0_fork_input: component fork
   port map(rst => rst,
-    inA_req => i_ack,
-    inA_ack => i_req,
+    inA_req => i_req,
+    inA_ack => i_ack,
     outB_req => f0_AB_o_req,
     outB_ack => f0_AB_o_ack,
     outC_req => f0_sumAB_o_req,
@@ -261,7 +265,7 @@ reg3_register_input_select_1: entity work.decoupled_hs_reg
    port map (
     rst => rst,
     in_ack => fr1_summand_o_ack,
-    in_req => fr1_summand_data,
+    in_req => fr1_summand_o_req,
     in_data=> fr1_summand_data,
     -- Output channel
     out_req => reg3_AB_o_req,
@@ -541,7 +545,7 @@ me0_merge_sums: component merge
   );
 
 -- store sumAB
-reg3_register_input_select_1: entity work.decoupled_hs_reg
+reg4_store_sumAB: entity work.decoupled_hs_reg
    port map (
     rst => rst,
     in_ack => me0_sumAB_o_ack,
