@@ -133,6 +133,28 @@ architecture STRUCTURE of lcm is
   );
   end component merge;
   
+	component reg_merge is
+		generic(
+			DATA_WIDTH : natural := DATA_WIDTH;
+			PHASE_INIT_C  : std_logic := '0';
+			PHASE_INIT_A        : std_logic := '0';
+			PHASE_INIT_B        : std_logic := '0');
+		port (rst   : in std_logic;
+			--Input channel 1
+			inA_req   : in std_logic;
+			inA_ack   : out std_logic;
+			inA_data  : in std_logic_vector(DATA_WIDTH-1 downto 0);
+			-- Input channel 2
+			inB_req   : in std_logic;
+			inB_ack   : out std_logic;
+			inB_data  : in std_logic_vector(DATA_WIDTH-1 downto 0);
+			-- Output channel
+			outC_req  : out std_logic;
+			outC_data : out std_logic_vector(DATA_WIDTH-1 downto 0);
+			outC_ack  : in std_logic
+	  );
+	end component reg_merge;
+
   component add_block is
 	  generic ( 
 			DATA_WIDTH: natural := DATA_WIDTH);
@@ -204,7 +226,7 @@ architecture STRUCTURE of lcm is
 	signal de2_sumA_data, de2_sumB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal de2_sumA_o_ack, de2_sumA_o_req, de2_sumB_o_ack, de2_sumB_o_req: std_logic;
 	
-	signal de3_A_data, de3_B_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal de3_A_data, de3_B_data, de3_A_data_masked, de3_B_data_masked : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal de3_A_o_ack, de3_A_o_req, de3_B_o_ack, de3_B_o_req: std_logic;
 
 	signal j0_AsumA_o_ack, j0_AsumA_o_req, j1_BsumB_o_ack, j1_BsumB_o_req: std_logic;
@@ -212,11 +234,8 @@ architecture STRUCTURE of lcm is
 	signal add0_AsumA_data, add1_BsumB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal add0_AsumA_o_ack, add0_AsumA_o_req, add1_BsumB_o_ack, add1_BsumB_o_req: std_logic;
 	
-	signal me0_sumAB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal me0_sumAB_o_ack, me0_sumAB_o_req: std_logic;
-	
-	signal reg4_sumAB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal reg4_sumAB_o_ack, reg4_sumAB_o_req: std_logic;
+	signal mr0_sumAB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal mr0_sumAB_o_ack, mr0_sumAB_o_req: std_logic;
   -------------------------------------------------------------------
 
 begin
@@ -298,9 +317,9 @@ m1_sum_select: component mux
     inA_ack => f0_sumAB_o_ack,
     inA_data => AB,
     inA_req => f0_sumAB_o_req,
-    inB_ack => reg4_sumAB_o_ack,
-    inB_data => reg4_sumAB_data,
-    inB_req => reg4_sumAB_o_req,
+    inB_ack => mr0_sumAB_o_ack,
+    inB_data => mr0_sumAB_data,
+    inB_req => mr0_sumAB_o_req,
     outC_ack => m1_sumAB_o_ack,
     outC_data => m1_sumAB_data,
     outC_req => m1_sumAB_o_req,
@@ -535,6 +554,9 @@ j1_sumB_plus_B: component join
 		 rst => rst);
 
 -- sumA + A 
+de3_A_data_masked(DATA_WIDTH   -1 downto DATA_WIDTH/2) <= de3_A_data(DATA_WIDTH-1 downto DATA_WIDTH/2);
+de3_A_data_masked(DATA_WIDTH/2 -1 downto            0) <= (others => '0');
+
 add0_A_sumA: component add_block 
 	  generic map(
 			DATA_WIDTH => DATA_WIDTH
@@ -544,8 +566,7 @@ add0_A_sumA: component add_block
 		 in_req => j0_AsumA_o_req,
 		 in_ack => j0_AsumA_o_ack,
 		 inA_data  => de2_sumA_data,
-		 inB_data(DATA_WIDTH   -1 downto DATA_WIDTH/2) => de3_A_data(DATA_WIDTH-1 downto DATA_WIDTH/2),
-		 inB_data(DATA_WIDTH/2 -1 downto            0) => (others => '0'),
+		 inB_data => de3_A_data_masked,
 		 -- Output channel
 		 out_req => add0_AsumA_o_req,
 		 out_ack  => add0_AsumA_o_ack,
@@ -553,6 +574,9 @@ add0_A_sumA: component add_block
 		 );
 
 -- sumB + B
+de3_B_data_masked(DATA_WIDTH   -1 downto DATA_WIDTH/2) <= (others => '0');
+de3_B_data_masked(DATA_WIDTH/2 -1 downto            0) <= de3_B_data(DATA_WIDTH/2 -1 downto 0);
+
 add1_B_sumB: component add_block 
 		generic map(
 			DATA_WIDTH => DATA_WIDTH
@@ -562,8 +586,7 @@ add1_B_sumB: component add_block
 			in_req => j1_BsumB_o_req,
 			in_ack => j1_BsumB_o_ack,
 			inA_data => de2_sumB_data,
-			inB_data(DATA_WIDTH   -1 downto DATA_WIDTH/2) => (others => '0'),
-			inB_data(DATA_WIDTH/2 -1 downto            0) => de3_B_data(DATA_WIDTH/2 -1 downto 0),
+			inB_data => de3_B_data_masked,
 			-- Output channel
 			out_req => add1_BsumB_o_req,
 			out_ack  => add1_BsumB_o_ack,
@@ -571,7 +594,7 @@ add1_B_sumB: component add_block
 		);
 
 -- merge sumA sumB again
-me0_merge_sums: component merge
+me0_merge_sums: component reg_merge
 	generic map(
 			DATA_WIDTH => DATA_WIDTH
 	)
@@ -582,27 +605,10 @@ me0_merge_sums: component merge
     inB_ack => add1_BsumB_o_ack,
     inB_data => add1_BsumB_data,
     inB_req => add1_BsumB_o_req,
-    outC_ack => me0_sumAB_o_ack,
-    outC_data => me0_sumAB_data,
-    outC_req => me0_sumAB_o_req,
+    outC_ack => mr0_sumAB_o_ack,
+    outC_data => mr0_sumAB_data,
+    outC_req => mr0_sumAB_o_req,
     rst => rst
   );
-
--- store sumAB
-reg4_store_sumAB: entity work.decoupled_hs_reg
-	generic map(
-			DATA_WIDTH => DATA_WIDTH
-	)
-   port map (
-    rst => rst,
-    in_ack => me0_sumAB_o_ack,
-    in_req => me0_sumAB_o_req,
-    in_data=> me0_sumAB_data,
-    -- Output channel
-    out_req => reg4_sumAB_o_req,
-    out_data=> reg4_sumAB_data,
-    out_ack => reg4_sumAB_o_ack
-  );
-
 
 end STRUCTURE;

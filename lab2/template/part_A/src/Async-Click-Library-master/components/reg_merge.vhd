@@ -8,9 +8,11 @@ use IEEE.STD_LOGIC_1164.ALL;
 use work.defs.all;
 
 entity reg_merge is
-  generic(PHASE_INIT_C  : std_logic := '0';
-    PHASE_INIT_A        : std_logic := '0';
-    PHASE_INIT_B        : std_logic := '0');
+  generic(
+	DATA_WIDTH : natural := DATA_WIDTH;
+	PHASE_INIT_C  : std_logic := '0';
+	PHASE_INIT_A        : std_logic := '0';
+	PHASE_INIT_B        : std_logic := '0');
   port (rst   : in std_logic;
     --Input channel 1
     inA_req   : in std_logic;
