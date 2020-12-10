@@ -7,11 +7,12 @@ use ieee.std_logic_1164.all;
 use work.defs.all;
 
 entity demux is
-  generic(
-    PHASE_INIT_A  : std_logic := '0';
-    PHASE_INIT_B  : std_logic := '0';
-    PHASE_INIT_C  : std_logic := '0'
-  );
+	generic(
+		DATA_WIDTH    : natural := DATA_WIDTH;
+		PHASE_INIT_A  : std_logic := '0';
+		PHASE_INIT_B  : std_logic := '0';
+		PHASE_INIT_C  : std_logic := '0'
+	);
   port(
     rst           : in  std_logic;
     -- Input port
