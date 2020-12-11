@@ -7,7 +7,7 @@ vmap altera_mf ../../../template/common/altera_mf
 vcom -work work -2008 -novopt ../../../template/common/delay_element/delay_element_async.vhd
 vcom -work work -2008 -novopt ../../../template/common/delay_element/delay_element_pkg.vhd
 
-vcom -work work -2008 -novopt ../src/Async-Click-Library/misc/defs.vhd
+vcom -work work -2008 -novopt ../src/Async-Click-Library-master/misc/defs.vhd
 
 vcom -work work -2008 -novopt ../src/Async-Click-Library-master/components/decoup_hs.vhd
 vcom -work work -2008 -novopt ../src/Async-Click-Library-master/components/DEMUX.vhd
