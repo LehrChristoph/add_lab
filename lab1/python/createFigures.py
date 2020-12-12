@@ -159,7 +159,7 @@ def generate_figures(datasets, export_folder):
         plot_mtbu(dataset,folder)
         plot_fr(dataset,folder)
         plot_tbu_distribution(dataset,folder)
-        plot_tbu_box(dataset, folder)
+        plot_tbu_box(dataset, folder, dataset_name)
     # end for
     folder = os.path.join(export_folder, "comparisons")
     plot_mtbu_comparision(datasets, folder, ["duty_cycle_6", "duty_cycle_13", "duty_cycle_50"])
@@ -247,7 +247,7 @@ def plot_fr(dataset, export_folder):
     plt.close()
 # end def
 
-def plot_tbu_box(dataset, export_folder):
+def plot_tbu_box(dataset, export_folder,dataset_name):
     t_res_orig = [round(tr*10**12, 3) for tr in dataset["data"]["t_res"]]
     t_res = t_res_orig
     tbu = dataset["data"]["tbu"]
@@ -261,7 +261,7 @@ def plot_tbu_box(dataset, export_folder):
     plt.figure(figsize=(10,7))
     plt.boxplot(tbu, sym="", whis=1000, widths=0.3, labels=t_res)
 
-    plt.title('TBU Distribution')
+    plt.title('TBU Distribution '+ dataset_name.replace("_", " ")+"%")
     plt.yscale("log")
     plt.grid(axis='y')
 
