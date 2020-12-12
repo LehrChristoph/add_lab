@@ -2,8 +2,6 @@
 if {[file isdirectory work]} {file delete -force work};
 vlib work
 
-vmap altera_mf ../../../template/common/altera_mf
-
 vcom -work work -2008 -novopt ../../../template/common/delay_element/delay_element_async.vhd
 vcom -work work -2008 -novopt ../../../template/common/delay_element/delay_element_pkg.vhd
 
