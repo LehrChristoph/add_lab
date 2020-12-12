@@ -47,7 +47,7 @@ begin
 		A_deb => A_deb, 
 		B_deb => B_deb,
 		req_AB => req_AB,
-		ack_AB => req_AB,
+		ack_AB => ack_AB,
 		result => result,
 		req_result => req_result,
 		ack_result => ack_result
@@ -57,8 +57,11 @@ begin
 		variable iteration : integer := 0 ;
 		variable A_temp, B_temp : integer;
 	begin
+		req_AB <= '0';
+		ack_result <= '0';
 		
 		wait until rising_edge(clk);
+
 		A_temp := 2;
 		B_temp := 3;
 
