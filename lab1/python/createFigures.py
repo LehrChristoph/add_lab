@@ -158,7 +158,7 @@ def generate_figures(datasets, export_folder):
     # end for
     folder = os.path.join(export_folder, "comparisons")
     plot_mtbu_comparision(datasets, folder, ["duty_cycle_6", "duty_cycle_13", "duty_cycle_50"])
-    plot_fr_comparision(datasets, folder)
+    plot_fr_comparision(datasets, folder, ["duty_cycle_6", "duty_cycle_13", "duty_cycle_50"])
 # end def
 
 def plot_mtbu(dataset, export_folder):
@@ -356,12 +356,12 @@ def plot_mtbu_comparision(datasets,export_folder, plot_dataset=[]):
 
         mtbu_mask = np.isfinite(mtbu.astype(np.double))
         plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
-        legend_str = dataset_name.replace("_", " ")
-        legend_str+= ", $\tau_M:{}, T0_M:{}$".format(dataset["tau"], dataset["T0"])
+        legend_str = dataset_name.replace("_", " ")+"%"
+        legend_str+= "\n$\\tau_M:{:.2e}, T0_M:{:.2e}$".format(dataset["tau"], dataset["T0"])
         if(not np.isnan(dataset["tau_1to1"])):
-            legend_str+= ", $\tau_S:{}, T0_S:{}$".format(dataset["tau_1to1"], dataset["T0_1to1"])
+            legend_str+= "\n$\\tau_S:{:.2e}, T0_S:{:.2e}$".format(dataset["tau_1to1"], dataset["T0_1to1"])
         elif(not np.isnan(dataset["tau_0to0"])):
-            legend_str+= ", $\tau_S:{}, T0_S:{}$".format(dataset["tau_0to0"], dataset["T0_0to0"])
+            legend_str+= "\n$\\tau_S:{:.2e}, T0_S:{:.2e}$".format(dataset["tau_0to0"], dataset["T0_0to0"])
         # end if
         legend.append(legend_str)
 
@@ -399,19 +399,34 @@ def plot_mtbu_comparision(datasets,export_folder, plot_dataset=[]):
     plt.close()
 # end def
 
-def plot_fr_comparision(datasets,export_folder):
+def plot_fr_comparision(datasets,export_folder, plot_dataset=[]):
     legend = []
     max_Tr= -np.inf
     min_Tr= np.inf
     
+    if(len(plot_dataset) == 0):
+        return
+    # end if 
+
     for dataset_name in datasets:
+        if(dataset_name not in plot_dataset):
+            continue
+        # end if
         dataset = datasets[dataset_name]["data"]
         mtbu = np.array(dataset["fr"])
         t_res = np.array(dataset["t_res"])*10**12 # Plot in ps
 
         mtbu_mask = np.isfinite(mtbu.astype(np.double))
         plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
-        legend.append(dataset_name.replace("_", " "))
+        
+        legend_str = dataset_name.replace("_", " ")
+        legend_str+= "\n$\\tau_M:{:.2e}, T0_M:{:.2e}$".format(dataset["tau"], dataset["T0"])
+        if(not np.isnan(dataset["tau_1to1"])):
+            legend_str+= "\n$\\tau_S:{:.2e}, T0_S:{:.2e}$".format(dataset["tau_1to1"], dataset["T0_1to1"])
+        elif(not np.isnan(dataset["tau_0to0"])):
+            legend_str+= "\n$\\tau_S:{:.2e}, T0_S:{:.2e}$".format(dataset["tau_0to0"], dataset["T0_0to0"])
+        # end if
+        legend.append(legend_str)
 
         lastTr = t_res[np.isfinite(np.array(dataset["fr"]))][-1]
         if(lastTr > max_Tr):
