@@ -17,6 +17,7 @@ def import_data(import_folder):
                 data_file = np.load(fd, allow_pickle=True)
                 data[file_name[:-3]] = data_file[0]["results"][0]
                 data[file_name[:-3]]["settings"]["last_data_point"] = data_file[0]["state"]["current_data_point"]
+                data[file_name[:-3]]['data']['ps_values'] = d['data']['ps_values']-6
             # end with
         # end for
     # end for
@@ -26,11 +27,12 @@ def import_data(import_folder):
 def do_calculations(datasets):
     lateTransitionTypes = ["","_0to1", "_1to0"]
     glitchTypes = ["_0to0", "_1to1"]
-    
+
     for dataset_name in datasets:
         lambda_dat = 2*56*10**6
         dataset = datasets[dataset_name]
         f_clk = dataset["settings"]['uut_freq']
+        dataset["data"]["f_clk"] = f_clk
         dataset["settings"]['ps_mult'] = 104.16 * 10**-12 #104.16 pico seconds
 
         calculate_tbu_mtbu(dataset)
@@ -56,12 +58,12 @@ def do_calculations(datasets):
                 t_res_glitch_min = i
             # end if
         # end for
-        
+
         for keyPostfix in lateTransitionTypes:
             [tau,offset] = calculate_T0_tau(dataset["data"]["t_res"][t_res_min:t_res_max], dataset["data"][f"mtbu{keyPostfix}"][t_res_min:t_res_max])
             T0 = (1/(offset*f_clk*lambda_dat*dataset["data"]["mtbu"][t_res_0]))
             dataset["data"][f"tau{keyPostfix}"] = tau
-            dataset["data"][f"T0{keyPostfix}"] = T0            
+            dataset["data"][f"T0{keyPostfix}"] = T0
         # end for
 
         for keyPostfix in glitchTypes:
@@ -119,7 +121,7 @@ def calculate_t_res(dataset):
 def calculate_T0_tau(x, y):
     if len(x) != len(y):
         raise Exception("length of arrays not equal")
-    
+
     x_poly_fit = []
     y_poly_fit = []
 
@@ -130,14 +132,16 @@ def calculate_T0_tau(x, y):
         x_poly_fit.append(x[i])
         y_poly_fit.append(y[i])
     # end for
-   
+
+    import pdb; pdb.set_trace()
+
     if(len(x_poly_fit)>0 ):
         (tau, T0 ) = np.polyfit( x_poly_fit, y_poly_fit, 1 )
         tau = 1/tau
     else:
         tau = np.nan
         T0 = np.nan
-    # end 
+    # end
 
     return [tau, T0]
 # end def
@@ -342,10 +346,10 @@ def plot_mtbu_comparision(datasets,export_folder, plot_dataset=[]):
     legend = []
     max_Tr= -np.inf
     min_Tr= np.inf
-    
+
     if(len(plot_dataset) == 0):
         return
-    # end if 
+    # end if
 
     for dataset_name in datasets:
         if(dataset_name not in plot_dataset):
@@ -365,6 +369,26 @@ def plot_mtbu_comparision(datasets,export_folder, plot_dataset=[]):
             legend_str+= "\n$\\tau_S:{:.2e}s, T0_S:{:.2e}s$".format(dataset["tau_0to0"], dataset["T0_0to0"])
         # end if
         legend.append(legend_str)
+
+        T0 = dataset["T0"]
+        tau = dataset["tau"]
+
+        #import pdb; pdb.set_trace()
+
+        f_clk = dataset['f_clk']
+        lambda_dat = 2*56*10**6
+        MTBU = lambda tres : 1/(lambda_dat*f_clk*T0)*np.exp(tres/tau)
+
+        approxTr = []
+        approxMTBU = []
+        for tr in [t_res[0], t_res[-1]]:
+            approxTr.append(tr)
+            approxMTBU.append(MTBU(tr/10**12))
+
+        import pdb; pdb.set_trace()
+        plt.plot(approxTr, approxMTBU)
+        legend.append("Approx")
+
 
         lastTr = t_res[np.isfinite(np.array(dataset["mtbu"]))][-1]
         if(lastTr > max_Tr):
@@ -404,10 +428,10 @@ def plot_fr_comparision(datasets,export_folder, plot_dataset=[]):
     legend = []
     max_Tr= -np.inf
     min_Tr= np.inf
-    
+
     if(len(plot_dataset) == 0):
         return
-    # end if 
+    # end if
 
     for dataset_name in datasets:
         if(dataset_name not in plot_dataset):
@@ -419,7 +443,7 @@ def plot_fr_comparision(datasets,export_folder, plot_dataset=[]):
 
         mtbu_mask = np.isfinite(mtbu.astype(np.double))
         plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
-        
+
         legend_str = dataset_name.replace("_", " ")
         legend_str+= "\n$\\tau_M:{:.2e}s, T0_M:{:.2e}s$".format(dataset["tau"], dataset["T0"])
         if(not np.isnan(dataset["tau_1to1"])):
