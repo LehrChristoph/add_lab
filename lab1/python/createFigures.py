@@ -88,6 +88,7 @@ def calculate_tbu_mtbu(dataset):
         dataset["data"][f"mtbu{t}"] = [None]*datapoint_cnt
         dataset["data"][f"fr{t}"] = [None]*datapoint_cnt
         dataset["data"][f"tbu{t}"] = [None]*datapoint_cnt
+        dataset["data"][f"stdtbu{t}"] = [None]*datapoint_cnt
 
     for datapoint_id in range(0, datapoint_cnt):
         def calculateNumbers(dataset, keyPostfix):
@@ -101,6 +102,8 @@ def calculate_tbu_mtbu(dataset):
             dataset["data"][f"tbu{keyPostfix}"][datapoint_id] = tbu
             dataset["data"][f"mtbu{keyPostfix}"][datapoint_id] = np.mean(tbu)
             dataset["data"][f"fr{keyPostfix}"][datapoint_id] = 1/np.mean(tbu)
+            if len(tbu) > 0:
+                dataset["data"][f"stdtbu{keyPostfix}"][datapoint_id] = np.std(tbu)
         # end def
 
         for t in upsetTypes:
@@ -158,6 +161,7 @@ def generate_figures(datasets, export_folder):
         plot_fr(dataset,folder)
         plot_tbu_distribution(dataset,folder)
         plot_tbu_box(dataset, folder, dataset_name)
+        plot_stddev(dataset, folder)
     # end for
     folder = os.path.join(export_folder, "comparisons")
     plot_mtbu_comparision(datasets, folder, ["duty_cycle_6", "duty_cycle_13", "duty_cycle_50"])
@@ -245,7 +249,46 @@ def plot_fr(dataset, export_folder):
     plt.close()
 # end def
 
-def plot_tbu_box(dataset, export_folder,dataset_name):
+def plot_stddev(dataset, export_folder):
+    t_res = np.array(dataset["data"]["t_res"])*10**12 # Plot in ps
+
+    plots = [
+        ("Total", ""),
+        ("1to0" , "_1to0"),
+        ("0to1" , "_0to1"),
+        ("0to0" , "_0to0"),
+        ("1to1" , "_1to1"),
+    ]
+
+    for _, postfix in plots:
+        stdtbu = np.array(dataset["data"][f"stdtbu{postfix}"])
+        stdtbu_mask = np.isfinite(stdtbu.astype(np.double))
+        plt.plot(t_res[stdtbu_mask], stdtbu[stdtbu_mask])
+    # end for
+
+    plt.title('TBU Distribution')
+    plt.grid(which='both')
+
+    plt.ylabel('Standard deviation')
+    plt.xlabel('Resolution time (ps)')
+
+    lastTr = t_res[np.isfinite(np.array(dataset["data"]["fr"]))][-1]
+
+    #plt.yticks([10**i for i in range(-4, 9)])
+    plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200))
+
+
+    plt.legend([elem[0] for elem in plots])
+
+    if not os.path.exists(export_folder):
+        os.makedirs(export_folder)
+    # end if
+    filepath = os.path.join(export_folder, 'stddev.jpeg')
+    plt.savefig(filepath)
+    plt.close()
+# end def
+
+def plot_tbu_box(dataset, export_folder):
     t_res_orig = [round(tr*10**12, 3) for tr in dataset["data"]["t_res"]]
     t_res = t_res_orig
     tbu = dataset["data"]["tbu"]
