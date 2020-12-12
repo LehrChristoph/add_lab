@@ -288,7 +288,7 @@ def plot_stddev(dataset, export_folder):
     plt.close()
 # end def
 
-def plot_tbu_box(dataset, export_folder):
+def plot_tbu_box(dataset, export_folder, dataset_name):
     t_res_orig = [round(tr*10**12, 3) for tr in dataset["data"]["t_res"]]
     t_res = t_res_orig
     tbu = dataset["data"]["tbu"]
