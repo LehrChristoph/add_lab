@@ -40,6 +40,7 @@ def do_calculations(datasets):
         t_res_min = 0
         t_res_max = 0
         t_res_glitch_min = 0
+        t_res_0 =0
         for i in range(len(dataset["data"]["t_res"])):
             if(dataset["data"]["t_res"][i] > 700 * 10**-12 and t_res_min == 0):
                 t_res_min = i
@@ -47,15 +48,18 @@ def do_calculations(datasets):
             if(dataset["data"]["t_res"][i] < 1200 * 10**-12):
                 t_res_max = i
             # end if
+            if(dataset["data"]["t_res"][i] == 0):
+                t_res_0 = i
+            # end if
 
             if((len(dataset["data"]["tbu_0to0"][i]) > 0 or len(dataset["data"]["tbu_1to1"][i]) > 0) and t_res_glitch_min ==0):
                 t_res_glitch_min = i
             # end if
         # end for
-
+        
         for keyPostfix in lateTransitionTypes:
             [tau,offset] = calculate_T0_tau(dataset["data"]["t_res"][t_res_min:t_res_max], dataset["data"][f"mtbu{keyPostfix}"][t_res_min:t_res_max])
-            T0 = (1/(offset*f_clk*lambda_dat))
+            T0 = (1/(offset*f_clk*lambda_dat*dataset["data"]["mtbu"][t_res_0]))
             dataset["data"][f"tau{keyPostfix}"] = tau
             dataset["data"][f"T0{keyPostfix}"] = T0            
         # end for
@@ -66,7 +70,7 @@ def do_calculations(datasets):
                 T0 = np.nan
             else:
                 [tau,offset] = calculate_T0_tau(dataset["data"]["t_res"][t_res_glitch_min:], dataset["data"][f"mtbu{keyPostfix}"][t_res_glitch_min:])
-                T0 = (1/(offset*f_clk*lambda_dat))
+                T0 = (1/(offset*f_clk*lambda_dat*dataset["data"]["mtbu"][t_res_0]))
             # end if
             dataset["data"][f"tau{keyPostfix}"] = tau
             dataset["data"][f"T0{keyPostfix}"] = T0
