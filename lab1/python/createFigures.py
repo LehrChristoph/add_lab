@@ -133,8 +133,6 @@ def calculate_T0_tau(x, y):
         y_poly_fit.append(y[i])
     # end for
 
-    #import pdb; pdb.set_trace()
-
     if(len(x_poly_fit)>0 ):
         (tau, T0 ) = np.polyfit( x_poly_fit, y_poly_fit, 1 )
         tau = 1/tau
@@ -373,8 +371,6 @@ def plot_mtbu_comparision(datasets,export_folder, plot_dataset=[]):
         T0 = dataset["T0"]
         tau = dataset["tau"]
 
-        #import pdb; pdb.set_trace()
-
         f_clk = dataset['f_clk']
         lambda_dat = 2*56*10**6
         MTBU = lambda tres : 1/(lambda_dat*f_clk*T0)*np.exp(tres/tau)
@@ -385,7 +381,6 @@ def plot_mtbu_comparision(datasets,export_folder, plot_dataset=[]):
             approxTr.append(tr)
             approxMTBU.append(MTBU(tr/10**12))
 
-        import pdb; pdb.set_trace()
         plt.plot(approxTr, approxMTBU)
         legend.append("Approx")
 
