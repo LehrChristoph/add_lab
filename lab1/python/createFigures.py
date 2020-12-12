@@ -44,7 +44,7 @@ def do_calculations(datasets):
             if(dataset["data"]["t_res"][i] > 700 * 10**-12 and t_res_min == 0):
                 t_res_min = i
             # end if
-            if(dataset["data"]["t_res"][i] < 1200 * 10**-12 and t_res_min == 0):
+            if(dataset["data"]["t_res"][i] < 1200 * 10**-12):
                 t_res_max = i
             # end if
 
@@ -57,8 +57,7 @@ def do_calculations(datasets):
             [tau,offset] = calculate_T0_tau(dataset["data"]["t_res"][t_res_min:t_res_max], dataset["data"][f"mtbu{keyPostfix}"][t_res_min:t_res_max])
             T0 = (1/(offset*f_clk*lambda_dat))
             dataset["data"][f"tau{keyPostfix}"] = tau
-            dataset["data"][f"T0{keyPostfix}"] = T0
-            
+            dataset["data"][f"T0{keyPostfix}"] = T0            
         # end for
 
         for keyPostfix in glitchTypes:
