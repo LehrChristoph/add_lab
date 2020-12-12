@@ -120,28 +120,25 @@ def calculate_T0_tau(x, y):
     if len(x) != len(y):
         raise Exception("length of arrays not equal")
     
-    x_bar = np.mean(np.isfinite(x))
-    y_bar = np.mean(np.isfinite(y))
-    
-    x_x_bar =[]# [None] * len(x)
-    y_y_bar =[]# [None] * len(x)
-    x_x_bar_square =[]# [None] * len(x)
-    x_y_bar = []#[None] * len(x)
+    x_poly_fit = []
+    y_poly_fit = []
+
     for i in range(0, len(x)):
         if(np.isnan(x[i]) or np.isnan(y[i]) ):
             continue
         # end if
-        x_x_bar.append(x[i] - x_bar)
-        y_y_bar.append(y[i] - y_bar)
-        
-        x_y_bar.append(x_x_bar[-1] * y_y_bar[-1])
-        x_x_bar_square.append(x_x_bar[-1] ** 2)
+        x_poly_fit.append(x[i])
+        y_poly_fit.append(y[i])
     # end for
    
-    m = np.sum(x_y_bar) / np.sum(x_x_bar_square)
-    tau = 1/m
-    T0 = y_bar - m * x_bar
-    
+    if(len(x_poly_fit)>0 ):
+        (tau, T0 ) = np.polyfit( x_poly_fit, y_poly_fit, 1 )
+        tau = 1/tau
+    else:
+        tau = np.nan
+        T0 = np.nan
+    # end 
+
     return [tau, T0]
 # end def
 
@@ -361,11 +358,11 @@ def plot_mtbu_comparision(datasets,export_folder, plot_dataset=[]):
         mtbu_mask = np.isfinite(mtbu.astype(np.double))
         plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
         legend_str = dataset_name.replace("_", " ")+"%"
-        legend_str+= "\n$\\tau_M:{:.2e}, T0_M:{:.2e}$".format(dataset["tau"], dataset["T0"])
+        legend_str+= "\n$\\tau_M:{:.2e}s, T0_M:{:.2e}s$".format(dataset["tau"], dataset["T0"])
         if(not np.isnan(dataset["tau_1to1"])):
-            legend_str+= "\n$\\tau_S:{:.2e}, T0_S:{:.2e}$".format(dataset["tau_1to1"], dataset["T0_1to1"])
+            legend_str+= "\n$\\tau_S:{:.2e}s, T0_S:{:.2e}s$".format(dataset["tau_1to1"], dataset["T0_1to1"])
         elif(not np.isnan(dataset["tau_0to0"])):
-            legend_str+= "\n$\\tau_S:{:.2e}, T0_S:{:.2e}$".format(dataset["tau_0to0"], dataset["T0_0to0"])
+            legend_str+= "\n$\\tau_S:{:.2e}s, T0_S:{:.2e}s$".format(dataset["tau_0to0"], dataset["T0_0to0"])
         # end if
         legend.append(legend_str)
 
@@ -424,11 +421,11 @@ def plot_fr_comparision(datasets,export_folder, plot_dataset=[]):
         plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
         
         legend_str = dataset_name.replace("_", " ")
-        legend_str+= "\n$\\tau_M:{:.2e}, T0_M:{:.2e}$".format(dataset["tau"], dataset["T0"])
+        legend_str+= "\n$\\tau_M:{:.2e}s, T0_M:{:.2e}s$".format(dataset["tau"], dataset["T0"])
         if(not np.isnan(dataset["tau_1to1"])):
-            legend_str+= "\n$\\tau_S:{:.2e}, T0_S:{:.2e}$".format(dataset["tau_1to1"], dataset["T0_1to1"])
+            legend_str+= "\n$\\tau_S:{:.2e}s, T0_S:{:.2e}s$".format(dataset["tau_1to1"], dataset["T0_1to1"])
         elif(not np.isnan(dataset["tau_0to0"])):
-            legend_str+= "\n$\\tau_S:{:.2e}, T0_S:{:.2e}$".format(dataset["tau_0to0"], dataset["T0_0to0"])
+            legend_str+= "\n$\\tau_S:{:.2e}s, T0_S:{:.2e}s$".format(dataset["tau_0to0"], dataset["T0_0to0"])
         # end if
         legend.append(legend_str)
 
