@@ -17,7 +17,7 @@ def import_data(import_folder):
                 data_file = np.load(fd, allow_pickle=True)
                 data[file_name[:-3]] = data_file[0]["results"][0]
                 data[file_name[:-3]]["settings"]["last_data_point"] = data_file[0]["state"]["current_data_point"]
-                data[file_name[:-3]]['data']['ps_values'] = d['data']['ps_values']-6
+                data[file_name[:-3]]['data']['ps_values'] = data[file_name[:-3]]['data']['ps_values']-6
             # end with
         # end for
     # end for
@@ -44,10 +44,10 @@ def do_calculations(datasets):
         t_res_glitch_min = 0
         t_res_0 =0
         for i in range(len(dataset["data"]["t_res"])):
-            if(dataset["data"]["t_res"][i] > 700 * 10**-12 and t_res_min == 0):
+            if(dataset["data"]["t_res"][i] > 200 * 10**-12 and t_res_min == 0):
                 t_res_min = i
             # end if
-            if(dataset["data"]["t_res"][i] < 1200 * 10**-12):
+            if(dataset["data"]["t_res"][i] < 700 * 10**-12):
                 t_res_max = i
             # end if
             if(dataset["data"]["t_res"][i] == 0):
@@ -133,7 +133,7 @@ def calculate_T0_tau(x, y):
         y_poly_fit.append(y[i])
     # end for
 
-    import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
 
     if(len(x_poly_fit)>0 ):
         (tau, T0 ) = np.polyfit( x_poly_fit, y_poly_fit, 1 )
