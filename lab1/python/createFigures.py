@@ -111,6 +111,7 @@ def generate_figures(datasets, export_folder):
         plot_mtbu(dataset,folder)
         plot_fr(dataset,folder)
         plot_tbu_distribution(dataset,folder)
+        plot_tbu_box(dataset, folder)
     # end for
     folder = os.path.join(export_folder, "comparisons")
     plot_mtbu_comparision(datasets, folder)
@@ -198,6 +199,43 @@ def plot_fr(dataset, export_folder):
     plt.close()
 # end def
 
+def plot_tbu_box(dataset, export_folder):
+    t_res_orig = [round(tr*10**12, 3) for tr in dataset["data"]["t_res"]]
+    t_res = t_res_orig
+    tbu = dataset["data"]["tbu"]
+
+    for idx, tbus in enumerate(dataset["data"]["tbu"]):
+        if tbus:
+            t_res = t_res_orig[0:idx+1]
+            tbu = dataset["data"]["tbu"][0:idx+1]
+
+
+    plt.figure(figsize=(10,7))
+    plt.boxplot(tbu, sym="", whis=1000, widths=0.3, labels=t_res)
+
+    plt.title('TBU Distribution')
+    plt.yscale("log")
+    plt.grid(axis='y')
+
+    plt.ylabel('TBU (s)')
+    plt.xlabel('Resolution time (ps)')
+
+    plt.yticks([10**i for i in range(-8, 5, 2)])
+
+    ticksToShow = range(1, len(t_res)+1, 3)
+
+    plt.xticks(ticksToShow, [t_res[t-1] for t in ticksToShow])
+    #plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200) )
+
+
+    if not os.path.exists(export_folder):
+        os.makedirs(export_folder)
+    # end if
+    filepath = os.path.join(export_folder, 'boxplot_tbu.jpeg')
+    plt.savefig(filepath)
+    plt.close()
+# end def
+
 def plot_tbu_distribution(dataset, export_folder):
     tbu_list = []
     t_res = []
@@ -260,7 +298,7 @@ def plot_mtbu_comparision(datasets,export_folder):
     legend = []
     max_Tr= -np.inf
     min_Tr= np.inf
-    
+
     for dataset_name in datasets:
         dataset = datasets[dataset_name]["data"]
         mtbu = np.array(dataset["mtbu"])
@@ -308,7 +346,7 @@ def plot_fr_comparision(datasets,export_folder):
     legend = []
     max_Tr= -np.inf
     min_Tr= np.inf
-    
+
     for dataset_name in datasets:
         dataset = datasets[dataset_name]["data"]
         mtbu = np.array(dataset["fr"])
