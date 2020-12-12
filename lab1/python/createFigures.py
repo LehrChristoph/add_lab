@@ -5,7 +5,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from pprint import pprint
 matplotlib.use("Agg")
-
+excessMeasurements = 6
 
 def import_data(import_folder):
     data = {}
@@ -16,7 +16,17 @@ def import_data(import_folder):
             with open(filepath, "rb") as fd:
                 data_file = np.load(fd, allow_pickle=True)
                 data[file_name[:-3]] = data_file[0]["results"][0]
-                data[file_name[:-3]]["settings"]["last_data_point"] = data_file[0]["state"]["current_data_point"]
+
+                d = data[file_name[:-3]]
+
+                d["settings"]["last_data_point"] = data_file[0]["state"]["current_data_point"] - excessMeasurements
+                d['data']['ps_values'] = d['data']['ps_values'] - excessMeasurements
+
+                for key in d['data'].keys():
+                    d['data'][key] = d['data'][key][excessMeasurements:]
+
+#                import pdb; pdb.set_trace()
+
             # end with
         # end for
     # end for
@@ -24,18 +34,59 @@ def import_data(import_folder):
     return data
 
 def do_calculations(datasets):
+    lateTransitionTypes = ["","_0to1", "_1to0"]
+    glitchTypes = ["_0to0", "_1to1"]
+
     for dataset_name in datasets:
         lambda_dat = 2*56*10**6
         dataset = datasets[dataset_name]
         f_clk = dataset["settings"]['uut_freq']
+        dataset["data"]["f_clk"] = f_clk
         dataset["settings"]['ps_mult'] = 104.16 * 10**-12 #104.16 pico seconds
 
         calculate_tbu_mtbu(dataset)
         calculate_t_res(dataset)
-        [tau,offset] = calculate_T0_tau(dataset["data"]["t_res"], dataset["data"]["mtbu"])
-        T0 = (1/(offset*f_clk*lambda_dat))
-        dataset["data"]["tau"] = tau
-        dataset["data"]["T0"] = T0
+
+        # get linear portion of graph from t_res 700 ps to 1200 ps, and t_res for glitches
+        t_res_min = 0
+        t_res_max = 0
+        t_res_glitch_min = 0
+        t_res_0 =0
+        for i in range(len(dataset["data"]["t_res"])):
+            if(dataset["data"]["t_res"][i] > 300 * 10**-12 and t_res_min == 0):
+                t_res_min = i
+            # end if
+            if(dataset["data"]["t_res"][i] < 700 * 10**-12):
+                t_res_max = i
+            # end if
+            if(dataset["data"]["t_res"][i] == 0):
+                t_res_0 = i
+            # end if
+
+            if((len(dataset["data"]["tbu_0to0"][i]) > 0 or len(dataset["data"]["tbu_1to1"][i]) > 0) and t_res_glitch_min ==0):
+                t_res_glitch_min = i
+            # end if
+        # end for
+
+        for keyPostfix in lateTransitionTypes:
+            [tau,offset] = calculate_T0_tau(dataset["data"]["t_res"][t_res_min:t_res_max], dataset["data"][f"mtbu{keyPostfix}"][t_res_min:t_res_max])
+            T0 = (1/(offset*f_clk*lambda_dat))
+            dataset["data"][f"tau{keyPostfix}"] = tau
+            dataset["data"][f"T0{keyPostfix}"] = T0
+        # end for
+
+        for keyPostfix in glitchTypes:
+            if(t_res_glitch_min == 0):
+                tau = np.nan
+                T0 = np.nan
+            else:
+                [tau,offset] = calculate_T0_tau(dataset["data"]["t_res"][t_res_glitch_min:], dataset["data"][f"mtbu{keyPostfix}"][t_res_glitch_min:])
+                T0 = (1/(offset*f_clk*lambda_dat))
+            # end if
+            dataset["data"][f"tau{keyPostfix}"] = tau
+            dataset["data"][f"T0{keyPostfix}"] = T0
+        # end for
+
     # end for
 #end def
 
@@ -46,6 +97,7 @@ def calculate_tbu_mtbu(dataset):
         dataset["data"][f"mtbu{t}"] = [None]*datapoint_cnt
         dataset["data"][f"fr{t}"] = [None]*datapoint_cnt
         dataset["data"][f"tbu{t}"] = [None]*datapoint_cnt
+        dataset["data"][f"stdtbu{t}"] = [None]*datapoint_cnt
 
     for datapoint_id in range(0, datapoint_cnt):
         def calculateNumbers(dataset, keyPostfix):
@@ -59,6 +111,8 @@ def calculate_tbu_mtbu(dataset):
             dataset["data"][f"tbu{keyPostfix}"][datapoint_id] = tbu
             dataset["data"][f"mtbu{keyPostfix}"][datapoint_id] = np.mean(tbu)
             dataset["data"][f"fr{keyPostfix}"][datapoint_id] = 1/np.mean(tbu)
+            if len(tbu) > 0:
+                dataset["data"][f"stdtbu{keyPostfix}"][datapoint_id] = np.std(tbu)
         # end def
 
         for t in upsetTypes:
@@ -79,21 +133,26 @@ def calculate_t_res(dataset):
 def calculate_T0_tau(x, y):
     if len(x) != len(y):
         raise Exception("length of arrays not equal")
-    x_bar = np.mean(x)
-    y_bar = np.mean(y)
-    x_x_bar = [None] * len(x)
-    y_y_bar = [None] * len(x)
-    x_x_bar_square = [None] * len(x)
-    x_y_bar = [None] * len(x)
-    for i in range(0, len(x)):
-        x_x_bar[i] = x[i] - x_bar
-        y_y_bar[i] = y[i] - y_bar
-        x_y_bar[i] = x_x_bar[i] * y_y_bar[i]
-        x_x_bar_square[i] = x_x_bar[i] ** 2
 
-    m = np.sum(x_y_bar) / np.sum(x_x_bar_square)
-    tau = 1/m
-    T0 = y_bar - m * x_bar
+    x_poly_fit = []
+    y_poly_fit = []
+
+    for i in range(0, len(x)):
+        if(np.isnan(x[i]) or np.isnan(y[i]) ):
+            continue
+        # end if
+        x_poly_fit.append(x[i])
+        y_poly_fit.append(np.log(y[i]))
+    # end for
+
+    if(len(x_poly_fit)>0 ):
+        (tau, T0 ) = np.polyfit( x_poly_fit, y_poly_fit, 1 )
+        tau = 1/tau
+        T0 = np.exp(T0)
+    else:
+        tau = np.nan
+        T0 = np.nan
+    # end
 
     return [tau, T0]
 # end def
@@ -111,10 +170,12 @@ def generate_figures(datasets, export_folder):
         plot_mtbu(dataset,folder)
         plot_fr(dataset,folder)
         plot_tbu_distribution(dataset,folder)
+        plot_tbu_box(dataset, folder, dataset_name)
+        plot_stddev(dataset, folder)
     # end for
     folder = os.path.join(export_folder, "comparisons")
-    plot_mtbu_comparision(datasets, folder)
-    plot_fr_comparision(datasets, folder)
+    plot_mtbu_comparision(datasets, folder, ["duty_cycle_6", "duty_cycle_13", "duty_cycle_50"])
+    plot_fr_comparision(datasets, folder, ["duty_cycle_6", "duty_cycle_13", "duty_cycle_50"])
 # end def
 
 def plot_mtbu(dataset, export_folder):
@@ -198,6 +259,82 @@ def plot_fr(dataset, export_folder):
     plt.close()
 # end def
 
+def plot_stddev(dataset, export_folder):
+    t_res = np.array(dataset["data"]["t_res"])*10**12 # Plot in ps
+
+    plots = [
+        ("Total", ""),
+        ("1to0" , "_1to0"),
+        ("0to1" , "_0to1"),
+        ("0to0" , "_0to0"),
+        ("1to1" , "_1to1"),
+    ]
+
+    for _, postfix in plots:
+        stdtbu = np.array(dataset["data"][f"stdtbu{postfix}"])
+        stdtbu_mask = np.isfinite(stdtbu.astype(np.double))
+        plt.plot(t_res[stdtbu_mask], stdtbu[stdtbu_mask])
+    # end for
+
+    plt.title('TBU Distribution')
+    plt.grid(which='both')
+
+    plt.ylabel('Standard deviation')
+    plt.xlabel('Resolution time (ps)')
+
+    lastTr = t_res[np.isfinite(np.array(dataset["data"]["fr"]))][-1]
+
+    #plt.yticks([10**i for i in range(-4, 9)])
+    plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200))
+
+
+    plt.legend([elem[0] for elem in plots])
+
+    if not os.path.exists(export_folder):
+        os.makedirs(export_folder)
+    # end if
+    filepath = os.path.join(export_folder, 'stddev.jpeg')
+    plt.savefig(filepath)
+    plt.close()
+# end def
+
+def plot_tbu_box(dataset, export_folder, dataset_name):
+    t_res_orig = [round(tr*10**12, 3) for tr in dataset["data"]["t_res"]]
+    t_res = t_res_orig
+    tbu = dataset["data"]["tbu"]
+
+    for idx, tbus in enumerate(dataset["data"]["tbu"]):
+        if tbus:
+            t_res = t_res_orig[0:idx+1]
+            tbu = dataset["data"]["tbu"][0:idx+1]
+
+
+    plt.figure(figsize=(10,7))
+    plt.boxplot(tbu, sym="", whis=1000, widths=0.3, labels=t_res)
+
+    plt.title('TBU Distribution '+ dataset_name.replace("_", " ")+"%")
+    plt.yscale("log")
+    plt.grid(axis='y')
+
+    plt.ylabel('TBU (s)')
+    plt.xlabel('Resolution time (ps)')
+
+    plt.yticks([10**i for i in range(-8, 5, 2)])
+
+    ticksToShow = range(1, len(t_res)+1, 3)
+
+    plt.xticks(ticksToShow, [t_res[t-1] for t in ticksToShow])
+    #plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200) )
+
+
+    if not os.path.exists(export_folder):
+        os.makedirs(export_folder)
+    # end if
+    filepath = os.path.join(export_folder, 'boxplot_tbu.jpeg')
+    plt.savefig(filepath)
+    plt.close()
+# end def
+
 def plot_tbu_distribution(dataset, export_folder):
     tbu_list = []
     t_res = []
@@ -256,19 +393,72 @@ def plot_tbu_distribution(dataset, export_folder):
     plt.close()
 # end def
 
-def plot_mtbu_comparision(datasets,export_folder):
+def plot_mtbu_comparision(datasets,export_folder, plot_dataset=[]):
     legend = []
     max_Tr= -np.inf
     min_Tr= np.inf
-    
+
+    if(len(plot_dataset) == 0):
+        return
+    # end if
+
+    plt.figure(figsize=(12,7))
+
+    plotColors = ['maroon', 'darkcyan', 'mediumorchid', 'coral']
+
     for dataset_name in datasets:
+        if(dataset_name not in plot_dataset):
+            continue
+        else:
+            color = plotColors[0]
+            plotColors.remove(color)
+        # end if
         dataset = datasets[dataset_name]["data"]
         mtbu = np.array(dataset["mtbu"])
         t_res = np.array(dataset["t_res"])*10**12 # Plot in ps
 
+        T0_s = None
+        tau_s = None
+
         mtbu_mask = np.isfinite(mtbu.astype(np.double))
-        plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
-        legend.append(dataset_name.replace("_", " "))
+        plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask], color=color)
+        legend_str = dataset_name.capitalize().replace("_", " ")+"%"
+        if(not np.isnan(dataset["tau_1to1"])):
+            T0_s = dataset["T0_1to1"]
+            tau_s = dataset["tau_1to1"]
+        elif(not np.isnan(dataset["tau_0to0"])):
+            T0_s = dataset["T0_0to0"]
+            tau_s = dataset["tau_0to0"]
+        # end if
+        legend.append(legend_str)
+
+        T0 = dataset["T0"]
+        tau = dataset["tau"]
+
+        f_clk = dataset['f_clk']
+        lambda_dat = 2*56*10**6
+        MTBU = lambda tres : 1/(lambda_dat*f_clk*T0)*np.exp(tres/tau)
+
+        approxTr = []
+        approxMTBU = []
+        for tr in [-200, 900]:
+            approxTr.append(tr)
+            approxMTBU.append(MTBU(tr/10**12))
+
+        plt.plot(approxTr, approxMTBU, '--', color=color)
+        legend.append(f"$\\tau_M:{tau*10**12:.02f}ps, T0_M:{T0*10**12:.02f}ps$")
+
+        if T0_s:
+            MTBU = lambda tres : 1/(lambda_dat*f_clk*T0_s)*np.exp(tres/tau_s)
+            approxTr = []
+            approxMTBU = []
+            for tr in [600, 1200]:
+                approxTr.append(tr)
+                approxMTBU.append(MTBU(tr/10**12))
+
+            plt.plot(approxTr, approxMTBU, ':', color=color)
+            legend.append(f"$\\tau_S:{tau_s*10**12:.02f}ps, T0_S:{T0_s*10**18:.02f}as$")
+
 
         lastTr = t_res[np.isfinite(np.array(dataset["mtbu"]))][-1]
         if(lastTr > max_Tr):
@@ -289,6 +479,8 @@ def plot_mtbu_comparision(datasets,export_folder):
     plt.ylabel('MTBU (s)')
     plt.xlabel('Resolution time (ps)')
 
+    plt.ylim([10**(-9), 10**5])
+
     plt.yticks([10**i for i in range(-8, 5)])
     plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200) )
 
@@ -304,19 +496,35 @@ def plot_mtbu_comparision(datasets,export_folder):
     plt.close()
 # end def
 
-def plot_fr_comparision(datasets,export_folder):
+def plot_fr_comparision(datasets,export_folder, plot_dataset=[]):
     legend = []
     max_Tr= -np.inf
     min_Tr= np.inf
-    
+    plt.figure(figsize=(12,7))
+
+    if(len(plot_dataset) == 0):
+        return
+    # end if
+
     for dataset_name in datasets:
+        if(dataset_name not in plot_dataset):
+            continue
+        # end if
         dataset = datasets[dataset_name]["data"]
         mtbu = np.array(dataset["fr"])
         t_res = np.array(dataset["t_res"])*10**12 # Plot in ps
 
         mtbu_mask = np.isfinite(mtbu.astype(np.double))
         plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
-        legend.append(dataset_name.replace("_", " "))
+
+        legend_str = dataset_name.capitalize().replace("_", " ")+"%"
+#        legend_str+= "\n$\\tau_M:{:.2e}s, T0_M:{:.2e}s$".format(dataset["tau"], dataset["T0"])
+#        if(not np.isnan(dataset["tau_1to1"])):
+#            legend_str+= "\n$\\tau_S:{:.2e}s, T0_S:{:.2e}s$".format(dataset["tau_1to1"], dataset["T0_1to1"])
+#        elif(not np.isnan(dataset["tau_0to0"])):
+#            legend_str+= "\n$\\tau_S:{:.2e}s, T0_S:{:.2e}s$".format(dataset["tau_0to0"], dataset["T0_0to0"])
+#        # end if
+        legend.append(legend_str)
 
         lastTr = t_res[np.isfinite(np.array(dataset["fr"]))][-1]
         if(lastTr > max_Tr):
@@ -334,10 +542,10 @@ def plot_fr_comparision(datasets,export_folder):
     plt.yscale("log")
     plt.grid(which='both')
 
-    plt.ylabel('Failure Rate (1/s)')
+    plt.ylabel('Failure Rate ($s^{-1}$)')
     plt.xlabel('Resolution time (ps)')
 
-    plt.yticks([10**i for i in range(-8, 5)])
+    plt.yticks([10**i for i in range(-4, 9)])
     plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200) )
 
     plt.legend(legend)

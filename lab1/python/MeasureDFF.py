@@ -19,8 +19,8 @@ def worker(result_queue):
     step_duration = timedelta(seconds = max_duration_step_seconds)
     remaining_runtime_print_int = timedelta(minutes = 10)
 
-    min_phase_shift = -3
-    max_phase_shift = 20
+    min_phase_shift = 0
+    max_phase_shift = 15
     
 
     current_data_point = 0
@@ -58,10 +58,11 @@ def worker(result_queue):
     measurement_board.calibrate()
     
     print("Setting initial alignment for the detector")
+    print(measurement_board.get_phase_shift_calibration_value_det())
     #measurement_board.set_phase_shift_value_det(measurement_board.get_phase_shift_calibration_value_det() -
     #                                            initial_steps_detector)
-    
-    measurement_board.set_phase_shift_value_det(min_phase_shift)
+
+    measurement_board.set_phase_shift_value_det(measurement_board.get_phase_shift_calibration_value_det() + min_phase_shift)
     
 
     print('Starting Measurement')
