@@ -78,14 +78,15 @@ begin
 	
 	generate_clk : process
 	begin
-		reset <= '0';
+		reset <= '1';
 		clk <= '0';
 		wait for CLK_PERIOD;
-		reset <= '1';
-			while not stop_clock loop
-				clk <= '0', '1' after CLK_PERIOD / 2;
-				wait for CLK_PERIOD;
-			end loop;
+		reset <= '0';
+		
+		while not stop_clock loop
+			clk <= '0', '1' after CLK_PERIOD / 2;
+			wait for CLK_PERIOD;
+		end loop;
 		wait;
 	end process;
 	
