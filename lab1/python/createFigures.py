@@ -288,6 +288,7 @@ def plot_stddev(dataset, export_folder):
     plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200))
 
 
+    plt.yscale("log")
     plt.legend([elem[0] for elem in plots])
 
     if not os.path.exists(export_folder):
@@ -506,9 +507,14 @@ def plot_fr_comparision(datasets,export_folder, plot_dataset=[]):
         return
     # end if
 
+    plotColors = ['maroon', 'darkcyan', 'mediumorchid', 'coral']
+
     for dataset_name in datasets:
         if(dataset_name not in plot_dataset):
             continue
+        else:
+            color = plotColors[0]
+            plotColors.remove(color)
         # end if
         dataset = datasets[dataset_name]["data"]
         mtbu = np.array(dataset["fr"])
@@ -517,14 +523,48 @@ def plot_fr_comparision(datasets,export_folder, plot_dataset=[]):
         mtbu_mask = np.isfinite(mtbu.astype(np.double))
         plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask])
 
+        mtbu_mask = np.isfinite(mtbu.astype(np.double))
+        plt.plot(t_res[mtbu_mask], mtbu[mtbu_mask], color=color)
         legend_str = dataset_name.capitalize().replace("_", " ")+"%"
-#        legend_str+= "\n$\\tau_M:{:.2e}s, T0_M:{:.2e}s$".format(dataset["tau"], dataset["T0"])
-#        if(not np.isnan(dataset["tau_1to1"])):
-#            legend_str+= "\n$\\tau_S:{:.2e}s, T0_S:{:.2e}s$".format(dataset["tau_1to1"], dataset["T0_1to1"])
-#        elif(not np.isnan(dataset["tau_0to0"])):
-#            legend_str+= "\n$\\tau_S:{:.2e}s, T0_S:{:.2e}s$".format(dataset["tau_0to0"], dataset["T0_0to0"])
-#        # end if
+        
+        T0_s = None
+        tau_s = None
+        
+        if(not np.isnan(dataset["tau_1to1"])):
+            T0_s = dataset["T0_1to1"]
+            tau_s = dataset["tau_1to1"]
+        elif(not np.isnan(dataset["tau_0to0"])):
+            T0_s = dataset["T0_0to0"]
+            tau_s = dataset["tau_0to0"]
+        # end if
         legend.append(legend_str)
+
+        T0 = dataset["T0"]
+        tau = dataset["tau"]
+
+        f_clk = dataset['f_clk']
+        lambda_dat = 2*56*10**6
+        MTBU = lambda tres : 1/(lambda_dat*f_clk*T0)*np.exp(tres/tau)
+
+        approxTr = []
+        approxMTBU = []
+        for tr in [-200, 600]:
+            approxTr.append(tr)
+            approxMTBU.append(1/MTBU(tr/10**12))
+
+        plt.plot(approxTr, approxMTBU, '--', color=color)
+        legend.append(f"$\\tau_M:{tau*10**12:.02f}ps, T0_M:{T0*10**12:.02f}ps$")
+
+        if T0_s:
+            MTBU = lambda tres : 1/(lambda_dat*f_clk*T0_s)*np.exp(tres/tau_s)
+            approxTr = []
+            approxMTBU = []
+            for tr in [600, 1400]:
+                approxTr.append(tr)
+                approxMTBU.append(1/MTBU(tr/10**12))
+
+            plt.plot(approxTr, approxMTBU, ':', color=color)
+            legend.append(f"$\\tau_S:{tau_s*10**12:.02f}ps, T0_S:{T0_s*10**15:.02f}fs$")
 
         lastTr = t_res[np.isfinite(np.array(dataset["fr"]))][-1]
         if(lastTr > max_Tr):
