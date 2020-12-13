@@ -53,10 +53,10 @@ def do_calculations(datasets):
         t_res_glitch_min = 0
         t_res_0 =0
         for i in range(len(dataset["data"]["t_res"])):
-            if(dataset["data"]["t_res"][i] > 300 * 10**-12 and t_res_min == 0):
+            if(dataset["data"]["t_res"][i] > -100 * 10**-12 and t_res_min == 0):
                 t_res_min = i
             # end if
-            if(dataset["data"]["t_res"][i] < 700 * 10**-12):
+            if(dataset["data"]["t_res"][i] < 400 * 10**-12):
                 t_res_max = i
             # end if
             if(dataset["data"]["t_res"][i] == 0):
@@ -441,7 +441,7 @@ def plot_mtbu_comparision(datasets,export_folder, plot_dataset=[]):
 
         approxTr = []
         approxMTBU = []
-        for tr in [-200, 900]:
+        for tr in [-200, 600]:
             approxTr.append(tr)
             approxMTBU.append(MTBU(tr/10**12))
 
@@ -452,12 +452,12 @@ def plot_mtbu_comparision(datasets,export_folder, plot_dataset=[]):
             MTBU = lambda tres : 1/(lambda_dat*f_clk*T0_s)*np.exp(tres/tau_s)
             approxTr = []
             approxMTBU = []
-            for tr in [600, 1200]:
+            for tr in [600, 1400]:
                 approxTr.append(tr)
                 approxMTBU.append(MTBU(tr/10**12))
 
             plt.plot(approxTr, approxMTBU, ':', color=color)
-            legend.append(f"$\\tau_S:{tau_s*10**12:.02f}ps, T0_S:{T0_s*10**18:.02f}as$")
+            legend.append(f"$\\tau_S:{tau_s*10**12:.02f}ps, T0_S:{T0_s*10**15:.02f}fs$")
 
 
         lastTr = t_res[np.isfinite(np.array(dataset["mtbu"]))][-1]
