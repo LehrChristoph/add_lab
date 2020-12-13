@@ -504,7 +504,7 @@ de2_set_sumA: component demux
     rst => rst,
     inSel_ack => f3_select_sumA_o_ack,
     inSel_req => f3_select_sumA_o_req,
-    selector => sel1_sumAGreater_data
+    selector => not sel1_sumAGreater_data
 );
 	
 -- switch between sumA + A and sumB +B
@@ -525,7 +525,7 @@ de3_set_sumA: component demux
     rst => rst,
     inSel_ack => f3_select_A_o_ack,
     inSel_req => f3_select_A_o_req,
-    selector => sel1_sumAGreater_data
+    selector => not sel1_sumAGreater_data
 );
 
 j0_sumA_plus_A: component join 
