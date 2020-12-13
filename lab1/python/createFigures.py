@@ -174,8 +174,8 @@ def generate_figures(datasets, export_folder):
         plot_stddev(dataset, folder)
     # end for
     folder = os.path.join(export_folder, "comparisons")
-    plot_mtbu_comparision(datasets, folder, ["duty_cycle_6", "duty_cycle_13", "duty_cycle_50"])
-    plot_fr_comparision(datasets, folder, ["duty_cycle_6", "duty_cycle_13", "duty_cycle_50"])
+    plot_mtbu_comparision(datasets, folder, ["duty_cycle_6", "duty_cycle_50"])
+    plot_fr_comparision(datasets, folder, ["duty_cycle_6", "duty_cycle_50"])
 # end def
 
 def plot_mtbu(dataset, export_folder):
