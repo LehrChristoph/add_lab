@@ -56,7 +56,10 @@ begin
 	lcm_stimuli : process
 		variable iteration : integer := 0 ;
 		variable A_temp, B_temp : integer;
-	begin
+	begin		
+		
+		A <= (others => '0');
+		B <= (others => '0');
 		req_AB <= '0';
 		ack_result <= '0';
 		
@@ -65,6 +68,7 @@ begin
 		A_temp := 2;
 		B_temp := 3;
 
+		--wait for 1 ns;
 		A <= std_logic_vector(to_unsigned(A_temp, 4));		
 		B <= std_logic_vector(to_unsigned(B_temp, 4));
 		
