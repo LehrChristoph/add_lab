@@ -376,9 +376,9 @@ f1_fork_select_in_output: component fork
 reg0_register_input_select_1: entity work.decoupled_hs_reg
    generic map(
     DATA_WIDTH=> 1,
-    VALUE => 1,
+    VALUE => 0,
     PHASE_INIT_IN => '0',
-    PHASE_INIT_OUT => '1'
+    PHASE_INIT_OUT => '0'
    )
    port map (
     rst => rst,
