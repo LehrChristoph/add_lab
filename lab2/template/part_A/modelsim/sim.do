@@ -23,7 +23,6 @@ vcom -work work -2008 ../src/Async-Click-Library-master/funcblocks/sel_a_not_b.v
 
 
 vcom -work work -2008 ../src/lcm.vhd
-vcom -work work -2008 ../src/lcm_top.vhd
 vcom -work work -2008 ../src/lcm_tb.vhd
 
 vsim work.LCM_tb -t ps
