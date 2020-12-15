@@ -36,7 +36,11 @@ architecture STRUCTURE of lcm is
   end component fork;
   
   component mux is
-  generic ( DATA_WIDTH : natural := DATA_WIDTH);
+  generic(DATA_WIDTH      : natural := DATA_WIDTH;
+     PHASE_INIT_C : std_logic := '0';
+     PHASE_INIT_A   : std_logic := '0';
+     PHASE_INIT_B   : std_logic := '0';
+     PHASE_INIT_SEL : std_logic := '0');
   port (
     rst : in STD_LOGIC;
     inA_req : in STD_LOGIC;
@@ -99,7 +103,12 @@ architecture STRUCTURE of lcm is
   end component sel_a_not_b;
   
   component demux is
-  generic ( DATA_WIDTH : natural := DATA_WIDTH);
+  generic(
+		DATA_WIDTH    : natural := DATA_WIDTH;
+		PHASE_INIT_A  : std_logic := '0';
+		PHASE_INIT_B  : std_logic := '0';
+		PHASE_INIT_C  : std_logic := '0'
+	);
   port (
     rst : in STD_LOGIC;
     inA_req : in STD_LOGIC;
@@ -183,23 +192,21 @@ architecture STRUCTURE of lcm is
 		 outC_ack    : in std_logic);
 	end component join;
 	
-	signal f0_AB_o_ack, f0_AB_o_req: std_logic;
-	signal f0_sumAB_o_ack, f0_sumAB_o_req: std_logic;
-  
-	signal m0_AB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal m0_AB_o_ack, m0_AB_o_req: std_logic;
+	constant DATA_PATH_WIDTH : Integer := 3*DATA_WIDTH;
+	constant SUM_WIDTH : Integer := DATA_WIDTH;
+	constant SUMMAND_WIDTH : Integer := DATA_WIDTH/2;
 	
-	signal fr0_AB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal fr0_AB_o_ack, fr0_AB_o_req: std_logic;
+	signal inAB  : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
  
-	signal m1_sumAB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal m1_sumAB_data : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
 	signal m1_sumAB_o_ack, m1_sumAB_o_req: std_logic;
 	
-	signal fr1_sumAB_select_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal fr1_sumAB_select_data : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
+	signal fr1_sumAB_select_data_masked : std_logic_vector(2*SUM_WIDTH-1 downto 0);
 	signal fr1_sumAB_select_o_ack, fr1_sumAB_select_o_req: std_logic;
 	
-	signal fr1_sumAB_data,fr1_summand_data : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal fr1_sumAB_o_ack, fr1_sumAB_o_req, fr1_summand_o_ack, fr1_summand_o_req: std_logic;
+	signal fr1_sumAB_data : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
+	signal fr1_sumAB_o_ack, fr1_sumAB_o_req: std_logic;
 	
 	signal sel0_sumNotEq_data, sel0_sumNotEq_o_ack, sel0_sumNotEq_o_req: std_logic;
 	
@@ -208,115 +215,45 @@ architecture STRUCTURE of lcm is
 	signal reg0_sumNotEq_data, reg0_sumNotEq_o_ack, reg0_sumNotEq_o_req: std_logic;
 	signal reg1_sumNotEq_data, reg1_sumNotEq_o_ack, reg1_sumNotEq_o_req: std_logic;
 	
-	signal f2_select_input_AB_o_ack, f2_select_input_AB_o_req, f2_select_input_sumAB_o_ack, f2_select_input_sumAB_o_req: std_logic;
-	
-	signal de0_sumAB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal de0_sumAB_data, de0_full_result_vector : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
 	signal de0_sumAB_o_ack, de0_sumAB_o_req: std_logic;
 	
-	signal fr2_sumAB_data, fr2_sumAB_select_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal fr2_sumAB_data, fr2_sumAB_select_data : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
+	signal fr2_sumAB_select_data_masked : std_logic_vector(2*SUM_WIDTH-1 downto 0); 
 	signal fr2_sumAB_o_ack, fr2_sumAB_o_req, fr2_sumAB_select_o_ack, fr2_sumAB_select_o_req: std_logic;
 	
-	signal sel1_sumAGreater_data, sel1_sumAGreater_o_ack, sel1_sumAGreater_o_req: std_logic;
+	signal sel1_sumAGreaterSumB_data, sel1_sumAGreaterSumB_o_ack, sel1_sumAGreaterSumB_o_req: std_logic;
 	
-	signal f3_select_sumA_o_ack, f3_select_sumA_o_req, f3_select_A_o_ack, f3_select_A_o_req: std_logic;
-	
-	signal reg3_AB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal reg3_AB_o_ack, reg3_AB_o_req: std_logic;
-	
-	signal de2_sumA_data, de2_sumB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal de2_sumA_data, de2_sumB_data,de2_sumA_data_masked, de2_sumB_data_masked : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
 	signal de2_sumA_o_ack, de2_sumA_o_req, de2_sumB_o_ack, de2_sumB_o_req: std_logic;
 	
-	signal de3_A_data, de3_B_data, de3_A_data_masked, de3_B_data_masked : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal de3_A_o_ack, de3_A_o_req, de3_B_o_ack, de3_B_o_req: std_logic;
-
-	signal j0_AsumA_o_ack, j0_AsumA_o_req, j1_BsumB_o_ack, j1_BsumB_o_req: std_logic;
-	
-	signal add0_AsumA_data, add1_BsumB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal add0_AsumA_data, add1_BsumB_data : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
 	signal add0_AsumA_o_ack, add0_AsumA_o_req, add1_BsumB_o_ack, add1_BsumB_o_req: std_logic;
 	
-	signal mr0_sumAB_data : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal mr0_sumAB_data : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
 	signal mr0_sumAB_o_ack, mr0_sumAB_o_req: std_logic;
+	
+	
   -------------------------------------------------------------------
 
 begin
 
--- fork input AB to AB and sumA sumB
-f0_fork_input: component fork
-  port map(rst => rst,
-    inA_req => i_req,
-    inA_ack => i_ack,
-    outB_req => f0_AB_o_req,
-    outB_ack => f0_AB_o_ack,
-    outC_req => f0_sumAB_o_req,
-    outC_ack => f0_sumAB_o_ack
-);
-	 
--- Input Multiplexer AB, stored AB
-m0_summand_select: component mux
-	generic map(
-		DATA_WIDTH => DATA_WIDTH
-	)
-   port map (
-    inA_ack => f0_AB_o_ack,
-    inA_data => AB,
-    inA_req => f0_AB_o_req,
-    inB_ack => fr0_AB_o_ack,
-    inB_data => fr0_AB_data,
-    inB_req => fr0_AB_o_req,
-    outC_ack => m0_AB_o_ack,
-    outC_data => m0_AB_data,
-    outC_req => m0_AB_o_req,
-    rst => rst,
-    inSel_ack => f2_select_input_AB_o_ack,
-    inSel_req => f2_select_input_AB_o_req,
-    selector(0) => reg1_sumNotEq_data
-  );
-  
-fr0_fork_register_summand: entity work.reg_fork
-	generic map(
-		DATA_WIDTH => DATA_WIDTH,
-		PHASE_INIT_A => '0',
-		PHASE_INIT_B =>'0',
-		PHASE_INIT_C => '0'
-	)
-   port map (
-    inA_ack => m0_AB_o_ack,
-    inA_data => m0_AB_data,
-    inA_req => m0_AB_o_req,
-    outB_ack => fr1_summand_o_ack,
-    outB_data => fr1_summand_data,
-    outB_req => fr1_summand_o_req,
-    outC_ack => fr0_AB_o_ack,
-    outC_data=> fr0_AB_data,
-    outC_req => fr0_AB_o_req,
-    rst => rst
-  );
-  
--- store value for following calculations
-reg3_register_input_select_1: entity work.decoupled_hs_reg
-	generic map(
-		DATA_WIDTH => DATA_WIDTH
-	)
-   port map (
-    rst => rst,
-    in_ack => fr1_summand_o_ack,
-    in_req => fr1_summand_o_req,
-    in_data=> fr1_summand_data,
-    -- Output channel
-    out_req => reg3_AB_o_req,
-    out_data=> reg3_AB_data,
-    out_ack => reg3_AB_o_ack
-  );
-  
+inAB(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH) <= AB;
+inAB(2*SUM_WIDTH -1 downto SUM_WIDTH+SUMMAND_WIDTH) <= (others => '0');
+inAB(SUM_WIDTH+SUMMAND_WIDTH -1 downto SUM_WIDTH) <= AB(DATA_WIDTH-1 downto SUMMAND_WIDTH);
+inAB(SUM_WIDTH -1 downto SUMMAND_WIDTH) <= (others => '0');
+inAB(SUMMAND_WIDTH -1 downto 0) <= AB(SUMMAND_WIDTH-1 downto 0);
+
 -- Input Multiplexer AB, sumAB
 m1_sum_select: component mux
 	generic map(
-		DATA_WIDTH => DATA_WIDTH
+		DATA_WIDTH => DATA_PATH_WIDTH,
+		PHASE_INIT_SEL => '0'
 	)
    port map (
-    inA_ack => f0_sumAB_o_ack,
-    inA_data => AB,
-    inA_req => f0_sumAB_o_req,
+    inA_ack => i_ack,
+    inA_data => inAB,
+    inA_req => i_req,
     inB_ack => mr0_sumAB_o_ack,
     inB_data => mr0_sumAB_data,
     inB_req => mr0_sumAB_o_req,
@@ -324,14 +261,14 @@ m1_sum_select: component mux
     outC_data => m1_sumAB_data,
     outC_req => m1_sumAB_o_req,
     rst => rst,
-    inSel_ack => f2_select_input_sumAB_o_ack,
-    inSel_req => f2_select_input_sumAB_o_req,
+    inSel_ack => reg1_sumNotEq_o_ack,
+    inSel_req => reg1_sumNotEq_o_req,
     selector(0) => reg1_sumNotEq_data
   );
 	 
 fr1_fork_register_sum: entity work.reg_fork
 	generic map(
-		DATA_WIDTH => DATA_WIDTH,
+		DATA_WIDTH => DATA_PATH_WIDTH,
 		PHASE_INIT_A => '0',
 		PHASE_INIT_B =>'0',
 		PHASE_INIT_C => '0'
@@ -349,13 +286,15 @@ fr1_fork_register_sum: entity work.reg_fork
     rst => rst
   ); 
   
+fr1_sumAB_select_data_masked <= fr1_sumAB_select_data(2*SUM_WIDTH-1 downto 0);
+
 sel0_select_in_output: component sel_a_not_b
 	generic map(
-		DATA_WIDTH => DATA_WIDTH
+		DATA_WIDTH => 2*SUM_WIDTH
 	)
    port map (
     in_ack => fr1_sumAB_select_o_ack,
-    in_data => fr1_sumAB_select_data,
+    in_data => fr1_sumAB_select_data_masked,
     in_req => fr1_sumAB_select_o_req,
     out_ack => sel0_sumNotEq_o_ack,
     out_req => sel0_sumNotEq_o_req,
@@ -391,7 +330,7 @@ reg0_register_input_select_1: entity work.decoupled_hs_reg
     out_ack => reg0_sumNotEq_o_ack
   );
 
-reg2_register_input_select_2: entity work.decoupled_hs_reg
+reg1_register_input_select_2: entity work.decoupled_hs_reg
    generic map(
     DATA_WIDTH=> 1,
     VALUE => 1,
@@ -408,29 +347,18 @@ reg2_register_input_select_2: entity work.decoupled_hs_reg
     out_data(0)=> reg1_sumNotEq_data,
     out_ack => reg1_sumNotEq_o_ack
   );
-  
- -- fork input output selector signal
-f2_fork_select_input: component fork
-  port map(rst => rst,
-    inA_req => reg1_sumNotEq_o_req,
-    inA_ack => reg1_sumNotEq_o_ack,
-    outB_req => f2_select_input_AB_o_req,
-    outB_ack => f2_select_input_AB_o_ack,
-    outC_req => f2_select_input_sumAB_o_req,
-    outC_ack => f2_select_input_sumAB_o_ack
-);
- 
+   
 -- switch between forward data to calculation or set as result
 de0_set_result: component demux
 	generic map(
-		DATA_WIDTH => DATA_WIDTH
+		DATA_WIDTH => DATA_PATH_WIDTH
 	)
    port map (
     inA_ack => fr1_sumAB_o_ack,
     inA_data => fr1_sumAB_data,
     inA_req => fr1_sumAB_o_req,
     outB_ack => o_ack,
-    outB_data => RESULT,
+    outB_data => de0_full_result_vector,
     outB_req => o_req,
     outC_ack => de0_sumAB_o_ack,
     outC_data => de0_sumAB_data,
@@ -441,10 +369,12 @@ de0_set_result: component demux
     selector => sel0_sumNotEq_data
 );
 
+RESULT <= de0_full_result_vector(DATA_WIDTH-1 downto 0);
+
 -- fork sumAB for calculation
 fr2_fork_register_calculation_sumAB: entity work.reg_fork
 	generic map(
-		DATA_WIDTH => DATA_WIDTH,
+		DATA_WIDTH => DATA_PATH_WIDTH,
 		PHASE_INIT_A => '0',
 		PHASE_INIT_B =>'0',
 		PHASE_INIT_C => '0'
@@ -462,34 +392,25 @@ fr2_fork_register_calculation_sumAB: entity work.reg_fork
 		rst => rst
 	); 
 
+fr2_sumAB_select_data_masked <= fr2_sumAB_select_data(2*SUM_WIDTH-1 downto 0);
+
 sel1_sum_select_cond: component sel_a_larger_b
 	generic map(
-		DATA_WIDTH => DATA_WIDTH
+		DATA_WIDTH => 2*SUM_WIDTH
 	)
    port map (
     in_ack => fr2_sumAB_select_o_ack,
-    in_data=> fr2_sumAB_select_data,
+    in_data=> fr2_sumAB_select_data_masked,
     in_req => fr2_sumAB_select_o_req,
-    out_ack => sel1_sumAGreater_o_ack,
-    out_req => sel1_sumAGreater_o_req,
-    selector => sel1_sumAGreater_data
+    out_ack => sel1_sumAGreaterSumB_o_ack,
+    out_req => sel1_sumAGreaterSumB_o_req,
+    selector => sel1_sumAGreaterSumB_data
   );
   
--- fork input sumA > sumB
-f3_fork_select_calculation: component fork
-  port map(rst => rst,
-    inA_req => sel1_sumAGreater_o_req,
-    inA_ack => sel1_sumAGreater_o_ack,
-    outB_req => f3_select_sumA_o_req,
-    outB_ack => f3_select_sumA_o_ack,
-    outC_req => f3_select_A_o_req,
-    outC_ack => f3_select_A_o_ack
-);
-
 -- switch between sumA + A and sumB +B
 de2_set_sumA: component demux
 	generic map(
-		DATA_WIDTH => DATA_WIDTH
+		DATA_WIDTH => DATA_PATH_WIDTH
 	)
    port map (
     inA_ack => fr2_sumAB_o_ack,
@@ -502,71 +423,26 @@ de2_set_sumA: component demux
     outC_data => de2_sumB_data,
     outC_req => de2_sumB_o_req,
     rst => rst,
-    inSel_ack => f3_select_sumA_o_ack,
-    inSel_req => f3_select_sumA_o_req,
-    selector => not sel1_sumAGreater_data
+    inSel_ack => sel1_sumAGreaterSumB_o_ack,
+    inSel_req => sel1_sumAGreaterSumB_o_req,
+    selector => not sel1_sumAGreaterSumB_data
 );
-	
--- switch between sumA + A and sumB +B
-de3_set_sumA: component demux
-	generic map(
-		DATA_WIDTH => DATA_WIDTH
-	)
-   port map (
-    inA_ack => reg3_AB_o_ack,
-    inA_data => reg3_AB_data,
-    inA_req => reg3_AB_o_req,
-    outB_ack => de3_A_o_ack,
-    outB_data => de3_A_data,
-    outB_req => de3_A_o_req,
-    outC_ack => de3_B_o_ack,
-    outC_data => de3_B_data,
-    outC_req => de3_B_o_req,
-    rst => rst,
-    inSel_ack => f3_select_A_o_ack,
-    inSel_req => f3_select_A_o_req,
-    selector => not sel1_sumAGreater_data
-);
-
-j0_sumA_plus_A: component join 
-	  port map(
-		 --UPSTREAM channels
-		 inA_req => de2_sumA_o_req,
-		 inA_ack => de2_sumA_o_ack,
-		 inB_req => de3_A_o_req,
-		 inB_ack => de3_A_o_ack,
-		 --DOWNSTREAM channel
-		 outC_req => j0_AsumA_o_req,
-		 outC_ack => j0_AsumA_o_ack,
-		 rst => rst);
-	
-j1_sumB_plus_B: component join 
-	  port map(
-		 
-		 --UPSTREAM channels
-		 inA_req => de2_sumB_o_req,
-		 inA_ack => de2_sumB_o_ack,
-		 inB_req => de3_B_o_req,
-		 inB_ack => de3_B_o_ack,
-		 --DOWNSTREAM channel
-		 outC_req => j1_BsumB_o_req,
-		 outC_ack => j1_BsumB_o_ack,
-		 rst => rst);
 
 -- sumA + A 
-de3_A_data_masked(DATA_WIDTH   -1 downto DATA_WIDTH/2) <= de3_A_data(DATA_WIDTH-1 downto DATA_WIDTH/2);
-de3_A_data_masked(DATA_WIDTH/2 -1 downto            0) <= (others => '0');
+de2_sumA_data_masked(DATA_PATH_WIDTH - 1 downto SUM_WIDTH + SUMMAND_WIDTH) <= (others => '0');
+de2_sumA_data_masked(SUM_WIDTH + SUMMAND_WIDTH -1 downto SUM_WIDTH) <= de2_sumA_data(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH+ SUMMAND_WIDTH);
+de2_sumA_data_masked(SUM_WIDTH - 1 downto 0) <= (others => '0');
 
 add0_A_sumA: component add_block 
 	  generic map(
-			DATA_WIDTH => DATA_WIDTH
+			DATA_WIDTH => DATA_PATH_WIDTH
 	  )
 	  port map (
 	    -- Input channel
-		 in_req => j0_AsumA_o_req,
-		 in_ack => j0_AsumA_o_ack,
+		 in_req => de2_sumA_o_req,
+		 in_ack => de2_sumA_o_ack,
 		 inA_data  => de2_sumA_data,
-		 inB_data => de3_A_data_masked,
+		 inB_data => de2_sumA_data_masked,
 		 -- Output channel
 		 out_req => add0_AsumA_o_req,
 		 out_ack  => add0_AsumA_o_ack,
@@ -574,19 +450,19 @@ add0_A_sumA: component add_block
 		 );
 
 -- sumB + B
-de3_B_data_masked(DATA_WIDTH   -1 downto DATA_WIDTH/2) <= (others => '0');
-de3_B_data_masked(DATA_WIDTH/2 -1 downto            0) <= de3_B_data(DATA_WIDTH/2 -1 downto 0);
+de2_sumB_data_masked(DATA_PATH_WIDTH -1 downto SUMMAND_WIDTH) <= (others => '0');
+de2_sumB_data_masked(SUMMAND_WIDTH -1 downto 0) <= de2_sumB_data(DATA_PATH_WIDTH-SUMMAND_WIDTH -1 downto 2*SUM_WIDTH);
 
 add1_B_sumB: component add_block 
 		generic map(
-			DATA_WIDTH => DATA_WIDTH
+			DATA_WIDTH => DATA_PATH_WIDTH
 		)
 		port map (
 			-- Input channel
-			in_req => j1_BsumB_o_req,
-			in_ack => j1_BsumB_o_ack,
+			in_req => de2_sumB_o_req,
+			in_ack => de2_sumB_o_ack,
 			inA_data => de2_sumB_data,
-			inB_data => de3_B_data_masked,
+			inB_data => de2_sumB_data_masked,
 			-- Output channel
 			out_req => add1_BsumB_o_req,
 			out_ack  => add1_BsumB_o_ack,
@@ -594,9 +470,9 @@ add1_B_sumB: component add_block
 		);
 
 -- merge sumA sumB again
-me0_merge_sums: component reg_merge
+mr0_merge_sums: component reg_merge
 	generic map(
-			DATA_WIDTH => DATA_WIDTH
+			DATA_WIDTH => DATA_PATH_WIDTH
 	)
    port map (
     inA_ack => add0_AsumA_o_ack,

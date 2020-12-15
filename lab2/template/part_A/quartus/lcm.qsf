@@ -95,8 +95,6 @@ set_location_assignment PIN_E22 -to RESULT[1]
 set_location_assignment PIN_E21 -to RESULT[0]
 
 
-set_global_assignment -name QDB_FILE ../../common/altera_mf/_lib.qdb
-set_global_assignment -name QDB_FILE ../../common/altera_mf/_lib1_0.qdb
 set_global_assignment -name VHDL_FILE ../../common/delay_element/delay_element_pkg.vhd
 set_global_assignment -name VHDL_FILE ../../common/delay_element/delay_element_async.vhd
 set_global_assignment -name VHDL_FILE "../src/Async-Click-Library-master/misc/defs.vhd"
