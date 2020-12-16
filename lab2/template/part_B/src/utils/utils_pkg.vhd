@@ -36,7 +36,7 @@ package utils_pkg is
 		Port (
 			sel 	: in  STD_LOGIC;
 			inA   : in  STD_LOGIC_VECTOR (DATA_WIDTH-1 downto 0);
-			outB   : in  STD_LOGIC_VECTOR (DATA_WIDTH-1 downto 0);
+			outB  : out STD_LOGIC_VECTOR (DATA_WIDTH-1 downto 0);
 			outC	: out STD_LOGIC_VECTOR (DATA_WIDTH-1 downto 0)
 		);
 	end component demux_1to2;
@@ -70,5 +70,21 @@ package utils_pkg is
 		outC_data : out std_logic_vector(DATA_WIDTH-1 downto 0)
 	);
 	end component add_block;
+	
+	component reg_ena_valid is
+		generic (
+			DATA_WIDTH : natural := 16
+		);
+		port
+		(
+			clk   :  in std_logic;
+			reset :  in std_logic;
+			ena	:	in std_logic;
+			d		:  in std_logic_vector(DATA_WIDTH-1 downto 0);
+			valid : out std_logic;
+			q		: out std_logic_vector(DATA_WIDTH-1 downto 0)
+		);
+	end component reg_ena_valid;
+
 end package;
 

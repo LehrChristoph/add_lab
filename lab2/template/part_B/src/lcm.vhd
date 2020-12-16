@@ -27,7 +27,8 @@ architecture STRUCTURE of LCM is
 	constant SUM_WIDTH : Integer := DATA_WIDTH;
 	constant SUMMAND_WIDTH : Integer := DATA_WIDTH/2;
 	
-	signal inAB  : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
+	signal rev0_AB  : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal rev0_ABsumAB  : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
 	signal m1_ABsumAB : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
 	signal reg0_ABsumAB : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
 	signal reg0_sumAB : std_logic_vector(2*SUM_WIDTH-1 downto 0);
@@ -43,21 +44,34 @@ architecture STRUCTURE of LCM is
 	signal reg4_ABsumAB : std_logic_vector(DATA_PATH_WIDTH-1 downto 0);
 
 begin
-
-	inAB(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH) <= AB;
-	inAB(2*SUM_WIDTH -1 downto SUM_WIDTH+SUMMAND_WIDTH) <= (others => '0');
-	inAB(SUM_WIDTH+SUMMAND_WIDTH -1 downto SUM_WIDTH) <= AB(DATA_WIDTH-1 downto SUMMAND_WIDTH);
-	inAB(SUM_WIDTH -1 downto SUMMAND_WIDTH) <= (others => '0');
-	inAB(SUMMAND_WIDTH -1 downto 0) <= AB(SUMMAND_WIDTH-1 downto 0);
 	
+rev0_input_reg : component reg_ena_valid
+	generic map (
+		DATA_WIDTH => DATA_WIDTH
+	)
+   port map
+   (
+		clk  	=> clk,
+		reset => res_n,
+		ena	=> ready,
+      d		=> AB,
+		valid => done,
+      q		=> rev0_AB
+   );
+
+	rev0_ABsumAB(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH) <= rev0_AB;
+	rev0_ABsumAB(2*SUM_WIDTH -1 downto SUM_WIDTH+SUMMAND_WIDTH) <= (others => '0');
+	rev0_ABsumAB(SUM_WIDTH+SUMMAND_WIDTH -1 downto SUM_WIDTH) <= rev0_AB(DATA_WIDTH-1 downto SUMMAND_WIDTH);
+	rev0_ABsumAB(SUM_WIDTH -1 downto SUMMAND_WIDTH) <= (others => '0');
+	rev0_ABsumAB(SUMMAND_WIDTH -1 downto 0) <= rev0_AB(SUMMAND_WIDTH-1 downto 0);
 	
 m1_sum_select : component mux_2to1
 	generic map(
 		DATA_WIDTH => DATA_PATH_WIDTH
 	)
    port map(
-		sel 	=> reg2_input_select,
-      inA 	=> AB,
+		sel 	=> not reg2_input_select,
+      inA 	=> rev0_ABsumAB,
       inB	=> reg4_ABsumAB,
       outC 	=> m1_ABsumAB
 	);
@@ -116,11 +130,23 @@ de0_set_result : component demux_1to2
    port map(
 		sel 	=> sel0_sumNotEq,
       inA   => reg0_ABsumAB,
-      outB  => de0_full_reslt_vector,
-      outC	=> de0_ABsumAB
+      outB  => de0_ABsumAB,
+      outC	=> de0_full_reslt_vector
 	);
-valid <= sel0_sumNotEq;
-result <= de0_full_reslt_vector(SUM_WIDTH-1 downto 0);
+	
+rev1_input_reg : component reg_ena_valid
+	generic map(
+		DATA_WIDTH => DATA_WIDTH
+	)
+   port map
+   (
+		clk  	=> clk,
+		reset => res_n,
+		ena	=> sel0_sumNotEq,
+      d		=> de0_full_reslt_vector(SUM_WIDTH-1 downto 0),
+		valid => valid,
+      q		=> result
+   );
 
 reg3_AB_sumAB : component reg
 	generic map(
