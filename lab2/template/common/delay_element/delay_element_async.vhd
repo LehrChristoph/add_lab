@@ -19,11 +19,9 @@ architecture arch of delay_element is
         signal s : std_logic_vector(SIZE downto 0);
         attribute preserve: boolean;
         attribute preserve of s: signal is true;
-		  
-		  constant LUT_DELAY : time := 1 ns;
 begin
         s(0) <= d;
-        z <= s(SIZE) after SIZE* LUT_DELAY;
+        z <= s(SIZE);
         g_luts: for i in 0 to SIZE-1 generate
                 cmp_LUT: LCELL
                 port map(

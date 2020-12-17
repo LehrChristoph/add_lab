@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="iotest_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="ci_math_pkg" />
+            <top_module name="ci_ram_pkg" />
+            <top_module name="ci_uart_pkg" />
+            <top_module name="ci_util_pkg" />
+            <top_module name="defs" />
+            <top_module name="iotest_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="420300000fs"></ZoomStartTime>
+      <ZoomEndTime time="1482300001fs"></ZoomEndTime>
+      <Cursor1Time time="1014300000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="175"></NameColumnWidth>
+      <ValueColumnWidth column_width="206"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="17" />
+   <wvobject type="logic" fp_name="/iotest_tb/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/iotest_tb/res">
+      <obj_property name="ElementShortName">res</obj_property>
+      <obj_property name="ObjectShortName">res</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/iotest_tb/error_led">
+      <obj_property name="ElementShortName">error_led</obj_property>
+      <obj_property name="ObjectShortName">error_led</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/iotest_tb/heartbeat_led">
+      <obj_property name="ElementShortName">heartbeat_led</obj_property>
+      <obj_property name="ObjectShortName">heartbeat_led</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/iotest_tb/clk_period">
+      <obj_property name="ElementShortName">clk_period</obj_property>
+      <obj_property name="ObjectShortName">clk_period</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/iotest_tb/uut/result">
+      <obj_property name="ElementShortName">result[31:0]</obj_property>
+      <obj_property name="ObjectShortName">result[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/iotest_tb/uut/i_req">
+      <obj_property name="ElementShortName">i_req</obj_property>
+      <obj_property name="ObjectShortName">i_req</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/iotest_tb/uut/i_ack">
+      <obj_property name="ElementShortName">i_ack</obj_property>
+      <obj_property name="ObjectShortName">i_ack</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/iotest_tb/uut/o_ack">
+      <obj_property name="ElementShortName">o_ack</obj_property>
+      <obj_property name="ObjectShortName">o_ack</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/iotest_tb/uut/o_req">
+      <obj_property name="ElementShortName">o_req</obj_property>
+      <obj_property name="ObjectShortName">o_req</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/iotest_tb/uut/lcm_inst/mx0_data">
+      <obj_property name="ElementShortName">mx0_data[95:0]</obj_property>
+      <obj_property name="ObjectShortName">mx0_data[95:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/iotest_tb/uut/lcm_inst/MX_0/selector">
+      <obj_property name="ElementShortName">selector[0:0]</obj_property>
+      <obj_property name="ObjectShortName">selector[0:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/iotest_tb/uut/lcm_inst/DX_0/inA_data">
+      <obj_property name="ElementShortName">inA_data[95:0]</obj_property>
+      <obj_property name="ObjectShortName">inA_data[95:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/iotest_tb/uut/lcm_inst/DX_0/outB_data">
+      <obj_property name="ElementShortName">outB_data[95:0]</obj_property>
+      <obj_property name="ObjectShortName">outB_data[95:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/iotest_tb/uut/lcm_inst/ME_0/inA_data">
+      <obj_property name="ElementShortName">inA_data[95:0]</obj_property>
+      <obj_property name="ObjectShortName">inA_data[95:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/iotest_tb/uut/lcm_inst/ME_0/inB_data">
+      <obj_property name="ElementShortName">inB_data[95:0]</obj_property>
+      <obj_property name="ObjectShortName">inB_data[95:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/iotest_tb/uut/lcm_inst/MX_0/inB_data">
+      <obj_property name="ElementShortName">inB_data[95:0]</obj_property>
+      <obj_property name="ObjectShortName">inB_data[95:0]</obj_property>
+   </wvobject>
+</wave_config>
