@@ -168,7 +168,7 @@ def generate_figures(datasets, export_folder):
         dataset = datasets[dataset_name]
         folder = os.path.join(export_folder, dataset_name)
         plot_mtbu(dataset,folder)
-        plot_fr(dataset,folder)
+        plot_fr(dataset,folder, dataset_name)
         plot_tbu_distribution(dataset,folder)
         plot_tbu_box(dataset, folder, dataset_name)
         plot_stddev(dataset, folder)
@@ -219,7 +219,7 @@ def plot_mtbu(dataset, export_folder):
     plt.close()
 # end def
 
-def plot_fr(dataset, export_folder):
+def plot_fr(dataset, export_folder,dataset_name):
     t_res = np.array(dataset["data"]["t_res"])*10**12 # Plot in ps
 
     plots = [
@@ -237,7 +237,7 @@ def plot_fr(dataset, export_folder):
     # end for
 
     plt.yscale("log")
-    plt.title('Failure Rate')
+    plt.title('Failure Rate '+ dataset_name.replace("_", " ")+"%")
     plt.grid(which='both')
 
     plt.ylabel('Failure rate (s$^{-1}$)')
@@ -247,7 +247,6 @@ def plot_fr(dataset, export_folder):
 
     plt.yticks([10**i for i in range(-4, 9)])
     plt.xticks(range(math.floor(int(t_res[0])/200)*200, int(lastTr)+50, 200))
-
 
     plt.legend([elem[0] for elem in plots])
 
