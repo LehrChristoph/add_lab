@@ -29,7 +29,7 @@ architecture beh of LCM is
     -- Define registers
     type TYPE_REGS is record
         fsm_state : TYPE_FSM_STATE;
-        start     : std_logic;
+        valid     : std_logic;
         done      : std_logic;
         A         : unsigned(DATA_WIDTH/2-1 downto 0);
         B         : unsigned(DATA_WIDTH/2-1 downto 0);
@@ -40,7 +40,7 @@ architecture beh of LCM is
     -- Reset values of registers
     constant CONST_REGS_RESET : TYPE_REGS := (
         fsm_state => IDLE,
-        start     => '0',
+        valid     => '0',
         done      => '0',
         A         => (others => '0'),
         B         => (others => '0'),
@@ -51,7 +51,7 @@ architecture beh of LCM is
     signal R : TYPE_REGS;
 begin
     done <= R.done;
-    valid <= R.start;
+    valid <= R.valid;
     result <= std_logic_vector(R.sumA);
 
     lcm : process(clk, res_n)
@@ -62,12 +62,12 @@ begin
         elsif rising_edge(clk) then
             S := R;
             S.done  := '0';
-            S.start := '0';
+            S.valid := '0';
             case R.fsm_state is
                 when IDLE =>
                     if ready = '1' then
                         S.fsm_state := CALC;
-                        S.start := '1';
+                        S.done := '1';
                         S.A := unsigned(AB(DATA_WIDTH-1 downto DATA_WIDTH/2));
                         S.B := unsigned(AB(DATA_WIDTH/2-1 downto 0));
                         S.sumA := resize(S.A, S.sumA'length);
@@ -83,7 +83,7 @@ begin
                     -- using R instead of S delays the output by 1 cycle but shortens the critical path
                     if R.sumA = R.sumB then
                         S.fsm_state := IDLE;
-                        S.done := '1';
+                        S.valid := '1';
                     end if;
             end case;
 

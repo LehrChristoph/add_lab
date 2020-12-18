@@ -69,11 +69,11 @@ begin
             wait until rising_edge(clk);
             ready <= '1';
 
-            wait until valid = '1';
+            wait until done = '1';
             ready <= '0';
 
 
-            wait until done = '1';
+            wait until valid = '1';
 
             assert(result = std_logic_vector(to_unsigned( control_data(iteration), 16)))
                 report
