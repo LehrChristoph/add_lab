@@ -13,12 +13,9 @@ entity join is
   port (
     rst         : in std_logic;
     --UPSTREAM channels
-    inA_req     : in std_logic;
     inA_ack     : out std_logic;
-    inB_req     : in std_logic;
     inB_ack     : out std_logic;
     --DOWNSTREAM channel
-    outC_req    : out std_logic;
     outC_ack    : in std_logic);
 end join;
 
@@ -32,21 +29,6 @@ attribute dont_touch of  click : signal is "true";
 attribute dont_touch of  connect : signal is "true";
 
 begin                       
-  connect <= outC_ack;
-  inA_ack <= connect;
-  inB_ack <= connect;
-  
-  click <= (inA_req and inB_req and not(phase)) or (not(inA_req) and not(inB_req) and phase) after AND3_DELAY + OR2_DELAY;
-                  
-  clock_regs: process(click, rst)
-  begin
-    if rst = '1' then
-      phase <= PHASE_INIT;
-    elsif rising_edge(click) then
-      phase <= not(phase) after REG_CQ_DELAY;
-    end if;
-  end process;
-  
-  outC_req <= phase;
-
-end Behavioral;
+  inA_ack <= outC_ack;   
+  inB_ack <= outC_ack;
+ end Behavioral;
