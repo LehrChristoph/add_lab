@@ -34,6 +34,6 @@ begin
   b_f <= in_data_f(DATA_WIDTH/2 -1 downto 0);
     
   selector_t <= '0' when a_t /= b_t else '1';
-  selector_f <= '0' when a_f == b_f else '1';
+  selector_f <= '0' when a_f = b_f else '1';
 
 end Behavioral;

@@ -25,9 +25,6 @@ architecture Behavioral of sel_a_larger_b is
     
 	signal a_t, a_f : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
 	signal b_t, b_f : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
-
-  attribute dont_touch : string;
-  attribute dont_touch of  a, b: signal is "true";
     
 begin
 

@@ -36,19 +36,19 @@ begin
 	port map
 		(
 			-- flags
-			done			: out std_logic;
+			done			=> open,
 			-- Input channel
 			inA_data_t  => inA_data_t(0),
 			inA_data_f  => inA_data_f(0),
 			inB_data_t  => inB_data_t(0),
 			inB_data_f  => inB_data_f(0),
-			carry_in_t  => 0,
-			carry_in_f  => 0,
+			carry_in_t  => '0',
+			carry_in_f  => '0',
 			-- Output channel
 			outC_data_t => outC_data_t(0),
 			outC_data_f => outC_data_f(0),
 			carry_out_t => carry_t(0),
-			carry_out_f => carry_f(0),
+			carry_out_f => carry_f(0)
 		);
 			
 	
@@ -57,7 +57,7 @@ begin
 		port map
 			(
 				-- flags
-				done			: out std_logic;
+				done			=> open,
 				-- Input channel
 				inA_data_t  => inA_data_t(i),
 				inA_data_f  => inA_data_f(i),
@@ -69,7 +69,7 @@ begin
 				outC_data_t => outC_data_t(i),
 				outC_data_f => outC_data_f(i),
 				carry_out_t => carry_t(i),
-				carry_out_f => carry_f(i),
+				carry_out_f => carry_f(i)
 			);
 	end generate GEN_ADDERS;
 	
@@ -77,7 +77,7 @@ begin
 	port map
 		(
 			-- flags
-			done			: out std_logic;
+			done			=> open,
 			-- Input channel
 			inA_data_t  => inA_data_t(DATA_WIDTH-1),
 			inA_data_f  => inA_data_f(DATA_WIDTH-1),

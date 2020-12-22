@@ -6,6 +6,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
+use work.defs.all;
 
 entity full_adder is
   generic ( 
@@ -24,9 +25,9 @@ entity full_adder is
 		outC_data_t : out std_logic;
 		outC_data_f : out std_logic;
 		carry_out_t : out std_logic;
-		carry_out_f : out std_logic;
+		carry_out_f : out std_logic
     );
-end full_adder_block;
+end full_adder;
 
 architecture STRUCTURE of full_adder is
 	signal xor_t, xor_f: std_logic;
@@ -58,7 +59,7 @@ begin
 	carry_out_f <= and_xor_cin_f and and_ab_f;
 	
 	cd_in_1 <= outC_data_t or outC_data_f;
-	cd_in_2 <= and_xor_cin_t or and_xor_cin_f:
+	cd_in_2 <= and_xor_cin_t or and_xor_cin_f;
 	cd_in_3 <= and_ab_t or and_ab_t;
 	
 	c_element_done :	c_element_3in
