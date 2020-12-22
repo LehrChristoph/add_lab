@@ -12,37 +12,31 @@ entity sel_a_larger_b is
     DATA_WIDTH    : natural := DATA_WIDTH
   );
   port(
-    -- Data
-    in_data       : in  std_logic_vector(DATA_WIDTH -1 downto 0);
-    in_req        : in  std_logic;
-    in_ack        : out std_logic;
-    -- Selector
-    selector      : out std_logic;
-    out_req       : out std_logic;
-    out_ack       : in  std_logic
+     -- Input channel
+    in_data_t     : in  std_logic_vector(DATA_WIDTH -1 downto 0);
+    in_data_f     : in  std_logic_vector(DATA_WIDTH -1 downto 0);
+    -- Output channel
+    selector_t    : out std_logic;
+    selector_f    : out std_logic
       );
 end sel_a_larger_b;
 
 architecture Behavioral of sel_a_larger_b is
     
-    signal a : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
-    signal b : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
+	signal a_t, a_f : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
+	signal b_t, b_f : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
 
   attribute dont_touch : string;
   attribute dont_touch of  a, b: signal is "true";
     
 begin
 
-  a <= in_data(DATA_WIDTH - 1 downto DATA_WIDTH/2);
-  b <= in_data(DATA_WIDTH/2 -1 downto 0);
+  a_t <= in_data_t(DATA_WIDTH - 1 downto DATA_WIDTH/2);
+  b_t <= in_data_t(DATA_WIDTH/2 -1 downto 0);
+  
+  a_f <= in_data_f(DATA_WIDTH - 1 downto DATA_WIDTH/2);
+  b_f <= in_data_f(DATA_WIDTH/2 -1 downto 0);
     
-  delay_req: entity work.delay_element
-    generic map(
-      size => ADD_DELAY)
-    port map(d => in_req,
-      z => out_req);
-
-  in_ack <= out_ack;
-  selector <= '1' when a > b else '0';
-    
+  selector_t <= '1' when a_t > b_t else '0';
+  selector_f <= '1' when a_f > b_f else '0';
 end Behavioral;
