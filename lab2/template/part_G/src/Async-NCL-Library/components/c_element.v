@@ -1,4 +1,4 @@
-module MPSAT_unmapped_implementation (out1, in1, in2);
+module c_element (out1, in1, in2);
     output out1;
     input in1;
     input in2;

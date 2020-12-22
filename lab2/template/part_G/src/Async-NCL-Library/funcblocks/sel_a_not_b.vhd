@@ -13,35 +13,27 @@ entity sel_a_not_b is
     );
   port(
     -- Input channel
-    in_data     : in  std_logic_vector(DATA_WIDTH -1 downto 0);
-    in_req      : in  std_logic;
-    in_ack      : out std_logic;
+    in_data_t     : in  std_logic_vector(DATA_WIDTH -1 downto 0);
+    in_data_f     : in  std_logic_vector(DATA_WIDTH -1 downto 0);
     -- Output channel
-    selector    : out std_logic;
-    out_req     : out std_logic;
-    out_ack     : in  std_logic
+    selector_t    : out std_logic;
+    selector_f    : out std_logic
     );
 end sel_a_not_b;
 
 architecture Behavioral of sel_a_not_b is
     
-  signal a : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
-  signal b : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
-
-  attribute dont_touch : string;
-  attribute dont_touch of  a, b : signal is "true";
+  signal a_t, a_f : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
+  signal b_t, b_f : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
     
 begin
-  a <= in_data(DATA_WIDTH - 1 downto DATA_WIDTH/2);
-  b <= in_data(DATA_WIDTH/2 -1 downto 0);
+  a_t <= in_data_t(DATA_WIDTH - 1 downto DATA_WIDTH/2);
+  b_t <= in_data_t(DATA_WIDTH/2 -1 downto 0);
+  
+  a_f <= in_data_f(DATA_WIDTH - 1 downto DATA_WIDTH/2);
+  b_f <= in_data_f(DATA_WIDTH/2 -1 downto 0);
     
-  DELAY_REQ: entity work.delay_element
-    generic map(
-      size => ADD_DELAY+1)
-    port map(d => in_req,
-      z => out_req);
-
-  selector <= '0' when a /= b else '1';
-  in_ack <= out_ack;
+  selector_t <= '0' when a_t /= b_t else '1';
+  selector_f <= '0' when a_f == b_f else '1';
 
 end Behavioral;
