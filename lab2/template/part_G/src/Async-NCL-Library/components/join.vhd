@@ -20,14 +20,8 @@ entity join is
 end join;
 
 architecture Behavioral of join is
-signal connect: std_logic; -- signal for constraining i/o (needed only for post-timing simulation)
-signal click, phase: std_logic;
-
-attribute dont_touch : string;
-attribute dont_touch of phase : signal is "true";
-attribute dont_touch of  click : signal is "true";
-attribute dont_touch of  connect : signal is "true";
-
+	signal connect: std_logic; -- signal for constraining i/o (needed only for post-timing simulation)
+	signal click, phase: std_logic;
 begin                       
   inA_ack <= outC_ack;   
   inB_ack <= outC_ack;

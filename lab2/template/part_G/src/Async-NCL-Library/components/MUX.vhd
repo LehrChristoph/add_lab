@@ -32,34 +32,24 @@ entity mux is
 end mux;
 
 architecture arch of mux is
-  
-  component c_element is 
-		port(
-			in1, in2 : in std_logic;
-			out1 : out std_logic
-		);
-	end component;
-  
 	signal inA_buffered_complete, inB_buffered_complete : std_logic;
 	signal inA_data_buffered_t, inA_data_buffered_f : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal inB_data_buffered_t, inB_data_buffered_f : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal outC_data_buffered_t, outC_data_buffered_f : std_logic_vector(DATA_WIDTH-1 downto 0);
-
 begin
 	
-	inSel_ack <= outC_ack;
+--	inSel_ack <= outC_ack;
+--	
+--	c_element_ackA: entity work.c_element
+--	port map
+--		(
+--			in1 => outC_ack,
+--			in2 => selector_t,
+--			out1 => inA_ack
+--		);
 	
-	c_element_ackA: c_element
-	port map
-		(
-			in1 => outC_ack,
-			in2 => selector_t,
-			out1 => inA_ack
-		);
-	
-	GEN_C_ELEMENT : for i in 1 to DATA_WIDTH-1 generate
+	GEN_C_ELEMENT : for i in 0 to DATA_WIDTH-1 generate
 		
-		c_element_inst_inAt : c_element
+		c_element_inst_inAt : entity work.c_element
 		port map
 			(
 				in1 => inA_data_t(i),
@@ -67,7 +57,7 @@ begin
 				out1 => inA_data_buffered_t(i)
 			);
 			
-		c_element_inst_inAf :	c_element
+		c_element_inst_inAf : entity work.c_element
 		port map
 			(
 				in1 => inA_data_f(i),
@@ -75,7 +65,7 @@ begin
 				out1 => inA_data_buffered_f(i)
 			);
 		
-		c_element_inst_inBt : c_element
+		c_element_inst_inBt : entity work.c_element
 		port map
 			(
 				in1 => inB_data_t(i),
@@ -83,7 +73,7 @@ begin
 				out1 => inB_data_buffered_t(i)
 			);
 			
-		c_element_inst_inBf :	c_element
+		c_element_inst_inBf : entity work.c_element
 		port map
 			(
 				in1 => inB_data_f(i),
@@ -114,7 +104,7 @@ begin
 		complete => inB_buffered_complete
 	);
 	
-	c_element_inst_inA_ack :	c_element
+	c_element_inst_inA_ack : entity work.c_element
 	port map
 	(
 		in1 => inA_buffered_complete,
@@ -122,7 +112,7 @@ begin
 		out1 => inA_ack
 	);
 		
-	c_element_inst_inB_ack :	c_element
+	c_element_inst_inB_ack : entity work.c_element
 	port map
 	(
 		in1 => inB_buffered_complete,
@@ -132,7 +122,7 @@ begin
 	
 	inSel_ack <= outC_ack;
 	
-	outC_data_f <= inA_data_buffered_t or inB_data_buffered_t;
-	outC_data_t <= inA_data_buffered_f or inB_data_buffered_f;
+	outC_data_f <= inA_data_buffered_t xor inB_data_buffered_t;
+	outC_data_t <= inA_data_buffered_f xor inB_data_buffered_f;
 	
 end arch;
