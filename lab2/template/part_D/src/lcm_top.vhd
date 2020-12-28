@@ -33,7 +33,6 @@ begin
 	 -- padding with leading zeros
 	 A_pad <= ((LCM_IN_DATA_WIDTH/2)-1 downto A'length => '0') & A;
 	 B_pad <= ((LCM_IN_DATA_WIDTH/2)-1 downto B'length => '0') & B;
-	 result_pad <= (LCM_OUT_DATA_WIDTH-1 downto result'length => '0') & result;
 
 	 lcm_calc: entity work.Scope(LCM)
 	 generic map(
@@ -52,6 +51,8 @@ begin
 	 out_data => result_pad,
 	 out_ack => ack_result
 	 );
+	 
+	 result <= result_pad(result'length-1 downto 0);
 
 	 A_deb <= A;
     B_deb <= B;
