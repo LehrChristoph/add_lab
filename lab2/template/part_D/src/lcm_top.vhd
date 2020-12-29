@@ -5,6 +5,10 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use ieee.numeric_std.all;
 
+use ieee.std_logic_unsigned.all;
+use work.defs.all;
+use work.click_element_library_constants.all;
+
 entity LCM_top is
     port(
 	clk: in std_logic;
@@ -21,10 +25,36 @@ end LCM_top;
 
 architecture STRUCTURE of LCM_top is
 
+	 signal A_pad,B_pad : std_logic_vector((LCM_IN_DATA_WIDTH/2)-1 downto 0);
+	 signal result_pad :std_logic_vector(LCM_OUT_DATA_WIDTH-1 downto 0);
 
 begin
 
-    A_deb <= A;
+	 -- padding with leading zeros
+	 A_pad <= ((LCM_IN_DATA_WIDTH/2)-1 downto A'length => '0') & A;
+	 B_pad <= ((LCM_IN_DATA_WIDTH/2)-1 downto B'length => '0') & B;
+
+	 lcm_calc: entity work.Scope(LCM)
+	 generic map(
+	 DATA_WIDTH => LCM_DATA_WIDTH,
+	 OUT_DATA_WIDTH => LCM_OUT_DATA_WIDTH,
+	 IN_DATA_WIDTH => LCM_IN_DATA_WIDTH
+	 )
+	 port map (
+	 rst => not res_n,
+	 -- Input channel
+	 in_ack => ack_AB,
+	 in_req => req_AB,
+	 in_data => A_pad & B_pad,
+	 -- Output channel
+	 out_req => req_result,
+	 out_data => result_pad,
+	 out_ack => ack_result
+	 );
+	 
+	 result <= result_pad(result'length-1 downto 0);
+
+	 A_deb <= A;
     B_deb <= B;
 
 end STRUCTURE;

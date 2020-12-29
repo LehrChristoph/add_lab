@@ -4,7 +4,6 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use work.delay_element_pkg.all;
 use work.defs.all;
 
 entity sel_a_not_b is
@@ -33,7 +32,7 @@ begin
   a_f <= in_data_f(DATA_WIDTH - 1 downto DATA_WIDTH/2);
   b_f <= in_data_f(DATA_WIDTH/2 -1 downto 0);
     
-  selector_t <= '0' when a_t /= b_t else '1';
-  selector_f <= '0' when a_f == b_f else '1';
+  selector_t <= '1' when a_t /= b_t else '0';
+  selector_f <= '0' when a_f /= b_f else '1';
 
 end Behavioral;
