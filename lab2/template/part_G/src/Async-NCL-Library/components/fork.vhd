@@ -10,7 +10,6 @@ entity fork is
   generic ( 
     PHASE_INIT  : std_logic := '0');
   port(
-   rst          : in std_logic;
    -- Input channel
    inA_ack      : out std_logic;
    -- Output channel 1

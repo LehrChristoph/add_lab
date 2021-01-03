@@ -10,25 +10,25 @@ entity demux is
 	generic(
 		DATA_WIDTH    : natural := DATA_WIDTH
 	);
-  port(
-    rst           : in  std_logic;
-    -- Input port
-    inA_data_t    : in std_logic_vector(DATA_WIDTH-1 downto 0);
-    inA_data_f    : in std_logic_vector(DATA_WIDTH-1 downto 0);
-    inA_ack       : out std_logic;
-    -- Select port 
-    inSel_ack     : out std_logic;
-    selector_t    : in std_logic;
-    selector_f    : in std_logic;
-    -- Output channel 1
-    outB_data_t   : out std_logic_vector(DATA_WIDTH-1 downto 0);
-    outB_data_f   : out std_logic_vector(DATA_WIDTH-1 downto 0);
-    outB_ack      : in  std_logic;
-    -- Output channel 2
-    outC_data_t   : out std_logic_vector(DATA_WIDTH-1 downto 0);
-    outC_data_f   : out std_logic_vector(DATA_WIDTH-1 downto 0);
-    outC_ack      : in  std_logic
-    );
+	port(
+		rst           : in  std_logic;
+		-- Input port
+		inA_data_t    : in std_logic_vector(DATA_WIDTH-1 downto 0);
+		inA_data_f    : in std_logic_vector(DATA_WIDTH-1 downto 0);
+		inA_ack       : out std_logic;
+		-- Select port 
+		inSel_ack     : out std_logic;
+		selector_t    : in std_logic;
+		selector_f    : in std_logic;
+		-- Output channel 1
+		outB_data_t   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+		outB_data_f   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+		outB_ack      : in  std_logic;
+		-- Output channel 2
+		outC_data_t   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+		outC_data_f   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+		outC_ack      : in  std_logic
+	);
 end demux;
 
 architecture Behavioral of demux is

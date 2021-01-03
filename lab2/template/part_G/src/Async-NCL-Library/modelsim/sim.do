@@ -5,10 +5,8 @@ vmap work work
 
 vcom -work work -2008 ../misc/defs.vhd
 
-
-#vlog -work work ../components/c_element.v
 vcom -work work -2008 ../components/c_element.vhd
-vlog -work work ../components/c_element_3in.v
+vcom -work work -2008 ../components/c_element_3in.vhd
 vcom -work work -2008 ../components/completion_detector.vhd
 vcom -work work -2008 ../components/wchb_ncl.vhd
 vcom -work work -2008 ../components/DEMUX.vhd

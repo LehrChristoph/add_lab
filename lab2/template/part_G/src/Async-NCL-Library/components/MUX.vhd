@@ -32,54 +32,44 @@ entity mux is
 end mux;
 
 architecture arch of mux is
-	signal inA_buffered_complete, inB_buffered_complete : std_logic;
+	signal inA_buffered_complete, inB_buffered_complete, inA_enable_celement, inB_enable_celement : std_logic;
 	signal inA_data_buffered_t, inA_data_buffered_f : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal inB_data_buffered_t, inB_data_buffered_f : std_logic_vector(DATA_WIDTH-1 downto 0);
 begin
-	
---	inSel_ack <= outC_ack;
---	
---	c_element_ackA: entity work.c_element
---	port map
---		(
---			in1 => outC_ack,
---			in2 => selector_t,
---			out1 => inA_ack
---		);
 	
 	GEN_C_ELEMENT : for i in 0 to DATA_WIDTH-1 generate
 		
 		c_element_inst_inAt : entity work.c_element
 		port map
-			(
-				in1 => inA_data_t(i),
-				in2 => selector_f,
-				out1 => inA_data_buffered_t(i)
-			);
+		(
+			in1 => inA_data_t(i),
+			in2 => inA_enable_celement,
+			out1 => inA_data_buffered_t(i)
+		);
 			
 		c_element_inst_inAf : entity work.c_element
 		port map
-			(
-				in1 => inA_data_f(i),
-				in2 => selector_f,
-				out1 => inA_data_buffered_f(i)
-			);
+		(
+			in1 => inA_data_f(i),
+			in2 => inA_enable_celement,
+			out1 => inA_data_buffered_f(i)
+		);
 		
 		c_element_inst_inBt : entity work.c_element
 		port map
-			(
-				in1 => inB_data_t(i),
-				in2 => selector_t,
-				out1 => inB_data_buffered_t(i)
-			);
-			
+		(
+			in1 => inB_data_t(i),
+			in2 => inB_enable_celement,
+			out1 => inB_data_buffered_t(i)
+		);
+		
 		c_element_inst_inBf : entity work.c_element
 		port map
-			(
-				in1 => inB_data_f(i),
-				in2 => selector_t,
-				out1 => inB_data_buffered_f(i)
-			);
+		(
+			in1 => inB_data_f(i),
+			in2 => inB_enable_celement,
+			out1 => inB_data_buffered_f(i)
+		);
 	end generate GEN_C_ELEMENT;
 	
 	inA_Buffered_cd : entity work.completion_detector 
@@ -88,8 +78,8 @@ begin
 	)
 	port map(
 		rst => rst,
-		data_t => inA_data_buffered_t,
-		data_f => inA_data_buffered_f,
+		data_t => inA_data_t,
+		data_f => inA_data_f,
 		complete => inA_buffered_complete
 	);
 	
@@ -99,10 +89,27 @@ begin
 	)
 	port map(
 		rst => rst,
-		data_t => inB_data_buffered_t,
-		data_f => inB_data_buffered_f,
+		data_t => inB_data_t,
+		data_f => inB_data_f,
 		complete => inB_buffered_complete
 	);
+	
+	c_element_inst_selector_t : entity work.c_element
+	port map
+	(
+		in1 => inA_buffered_complete,
+		in2 => selector_f,
+		out1 => inA_enable_celement
+	);
+		
+	c_element_inst_selector_f : entity work.c_element
+	port map
+	(
+		in1 => inB_buffered_complete,
+		in2 => selector_t,
+		out1 => inB_enable_celement
+	);
+	
 	
 	c_element_inst_inA_ack : entity work.c_element
 	port map
@@ -122,7 +129,7 @@ begin
 	
 	inSel_ack <= outC_ack;
 	
-	outC_data_f <= inA_data_buffered_t xor inB_data_buffered_t;
-	outC_data_t <= inA_data_buffered_f xor inB_data_buffered_f;
+	outC_data_t <= inA_data_buffered_t xor inB_data_buffered_t;
+	outC_data_f <= inA_data_buffered_f xor inB_data_buffered_f;
 	
 end arch;

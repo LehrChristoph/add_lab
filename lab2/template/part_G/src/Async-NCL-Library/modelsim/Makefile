@@ -27,10 +27,10 @@ test_merge:
 	vsim -do "do sim.do; vsim work.merge_tb -t ps; add wave -hex /merge_tb/* ; do cc_wave.do;  run 105 ns; wave zoom full"
 
 test_full_adder:
-	vsim -do "do sim.do; vsim work.full_adder_tb -t ps; add wave -hex /full_adder_tb/* ; do cc_wave.do;  run 260 ns; wave zoom full"
+	vsim -do "do sim.do; vsim work.full_adder_tb -t ps; add wave -hex /full_adder_tb/* ; do cc_wave.do;  run 105 ns; wave zoom full"
 
 test_add_block:
-	vsim -do "do sim.do; vsim work.add_block_tb -t ps; add wave -hex /add_block_tb/* ; do cc_wave.do;  run 510 ns; wave zoom full"
+	vsim -do "do sim.do; vsim work.add_block_tb -t ps; add wave -hex /add_block_tb/* ; do cc_wave.do;  run 505 ns; wave zoom full"
 
 clean:
 	rm -f modelsim.ini

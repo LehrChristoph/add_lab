@@ -23,17 +23,17 @@ architecture STRUCTURE of LCM_top is
 	constant DATA_WIDTH : Integer := result'length;
 begin
 
-lcm_calc: entity work.lcm
-	generic map ( DATA_WIDTH => DATA_WIDTH)
-	port map(
-		AB => A&B,
-		RESULT => result,
-		rst => res_n,
-		i_req => req_AB,
-		i_ack => ack_AB,
-		o_req => req_result,
-		o_ack => ack_result
-	);
+--lcm_calc: entity work.lcm
+--	generic map ( DATA_WIDTH => DATA_WIDTH)
+--	port map(
+--		AB => A&B,
+--		RESULT => result,
+--		rst => res_n,
+--		i_req => req_AB,
+--		i_ack => ack_AB,
+--		o_req => req_result,
+--		o_ack => ack_result
+--	);
 
 	A_deb <= A;
 	B_deb <= B;

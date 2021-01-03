@@ -8,7 +8,9 @@ use work.defs.all;
 entity reg_mux is
 	--generic for initializing the phase registers
 	generic(
-		DATA_WIDTH      : natural := DATA_WIDTH
+		DATA_WIDTH      : natural := DATA_WIDTH;
+		INIT_VALUE		: natural 	:= 0;
+		INIT_PHASE		: std_logic := '1'
 	);
 	port(
 		rst       : in  std_logic; -- rst line
@@ -62,7 +64,9 @@ begin
 	
 	reg : entity work.wchb_ncl
 	generic map( 
-		DATA_WIDTH  => DATA_WIDTH
+		DATA_WIDTH  => DATA_WIDTH,
+		INIT_VALUE 	=> INIT_VALUE,
+		INIT_PHASE  => INIT_PHASE
 	)
 	port map(
 		-- flags

@@ -18,7 +18,7 @@ end c_element_3in;
 architecture STRUCTURE of c_element_3in is
     
 begin
-	c_elem_proc : process(in1, in2)
+	c_elem_proc : process(in1, in2, in3)
 		variable prev_out : std_logic := '0';
 	begin
 		if (in1 = in2) and (in1 = in3) then

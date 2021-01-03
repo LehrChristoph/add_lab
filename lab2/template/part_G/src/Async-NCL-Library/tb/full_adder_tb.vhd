@@ -65,14 +65,14 @@ begin
 		b_f <= '1';
 		c_in_t <= '0';
 		c_in_f <= '1'; 
-		wait until done = '1';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '1';
 		a_t <= '0';
 		a_f <= '0';
 		b_t <= '0';
 		b_f <= '0';
 		c_in_t <= '0';
 		c_in_f <= '0'; 
-		wait until done = '0';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '0';
 		
 		-- 1+0
 		wait until rising_edge(clk);
@@ -82,14 +82,14 @@ begin
 		b_f <= '1';
 		c_in_t <= '0';
 		c_in_f <= '1'; 
-		wait until done = '1';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '1';
 		a_t <= '0';
 		a_f <= '0';
 		b_t <= '0';
 		b_f <= '0';
 		c_in_t <= '0';
 		c_in_f <= '0'; 
-		wait until done = '0';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '0';
 		
 		-- 0+1
 		wait until rising_edge(clk);
@@ -99,14 +99,14 @@ begin
 		b_f <= '0';
 		c_in_t <= '0';
 		c_in_f <= '1'; 
-		wait until done = '1';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '1';
 		a_t <= '0';
 		a_f <= '0';
 		b_t <= '0';
 		b_f <= '0';
 		c_in_t <= '0';
 		c_in_f <= '0'; 
-		wait until done = '0';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '0';
 		
 		-- 1+1
 		wait until rising_edge(clk);
@@ -116,14 +116,14 @@ begin
 		b_f <= '0';
 		c_in_t <= '0';
 		c_in_f <= '1'; 
-		wait until done = '1';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '1';
 		a_t <= '0';
 		a_f <= '0';
 		b_t <= '0';
 		b_f <= '0';
 		c_in_t <= '0';
 		c_in_f <= '0'; 
-		wait until done = '0';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '0';
 		
 		-- carry in 1
 		-- 0+0
@@ -134,14 +134,14 @@ begin
 		b_f <= '1';
 		c_in_t <= '1';
 		c_in_f <= '0'; 
-		wait until done = '1';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '1';
 		a_t <= '0';
 		a_f <= '0';
 		b_t <= '0';
 		b_f <= '0';
 		c_in_t <= '0';
 		c_in_f <= '0'; 
-		wait until done = '0';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '0';
 		
 		-- 1+0
 		wait until rising_edge(clk);
@@ -151,14 +151,14 @@ begin
 		b_f <= '1';
 		c_in_t <= '1';
 		c_in_f <= '0'; 
-		wait until done = '1';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '1';
 		a_t <= '0';
 		a_f <= '0';
 		b_t <= '0';
 		b_f <= '0';
 		c_in_t <= '0';
 		c_in_f <= '0'; 
-		wait until done = '0';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '0';
 		
 		-- 0+1
 		wait until rising_edge(clk);
@@ -168,14 +168,14 @@ begin
 		b_f <= '0';
 		c_in_t <= '1';
 		c_in_f <= '0'; 
-		wait until done = '1';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '1';
 		a_t <= '0';
 		a_f <= '0';
 		b_t <= '0';
 		b_f <= '0';
 		c_in_t <= '0';
 		c_in_f <= '0'; 
-		wait until done = '0';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '0';
 		
 		-- 1+1
 		wait until rising_edge(clk);
@@ -185,14 +185,14 @@ begin
 		b_f <= '0';
 		c_in_t <= '1';
 		c_in_f <= '0'; 
-		wait until done = '1';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '1';
 		a_t <= '0';
 		a_f <= '0';
 		b_t <= '0';
 		b_f <= '0';
 		c_in_t <= '0';
 		c_in_f <= '0'; 
-		wait until done = '0';
+		wait until ((c_t xor c_f) and (c_out_t xor c_out_f)) = '0';
 		
 		wait;
 	end process;

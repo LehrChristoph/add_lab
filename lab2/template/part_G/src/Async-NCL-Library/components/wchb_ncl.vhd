@@ -4,12 +4,15 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.defs.all;
 
 
 entity wchb_ncl is
-  generic ( 
-    DATA_WIDTH    : natural := DATA_WIDTH
+	generic ( 
+		DATA_WIDTH    	: natural 	:= DATA_WIDTH;
+		INIT_VALUE		: natural 	:= 0;
+		INIT_PHASE		: std_logic := '1'
 	);
 	port(
 	   -- flags
@@ -75,10 +78,17 @@ begin
 		if rst = '1' then
 			out_t <= (others => '0');
 			out_f <= (others => '0');
-			in_selected_t <= (others => '0');
-			in_selected_f <= (others => '0');
+			
+			if INIT_PHASE = '1' then
+				in_selected_t <= (others => '0');
+				in_selected_f <= (others => '0');
+			else 
+				in_selected_t <= std_logic_vector(to_unsigned(INIT_VALUE, DATA_WIDTH));
+				in_selected_f <= not std_logic_vector(to_unsigned(INIT_VALUE, DATA_WIDTH));
+			end if;
+			
 			ack_out <= '0';
-			enable_c_elements <= '1';
+			enable_c_elements <= INIT_PHASE;
 			ack_in_temp <= '0';
 		else
 			in_selected_t <= in_t;

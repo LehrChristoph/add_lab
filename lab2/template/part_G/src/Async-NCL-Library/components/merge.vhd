@@ -70,7 +70,7 @@ begin
 			out1 => inB_ack
 		);
 		
-	outC_data_f <= inA_data_t xor inB_data_t after XOR_DELAY;
-	outC_data_t <= inA_data_f xor inB_data_f after XOR_DELAY;
+	outC_data_t <= inA_data_t xor inB_data_t after XOR_DELAY;
+	outC_data_f <= inA_data_f xor inB_data_f after XOR_DELAY;
 	
 end Behavioral;
