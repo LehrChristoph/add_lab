@@ -22,13 +22,19 @@ architecture STRUCTURE of completion_detector is
 begin
 	rail_state <= data_t xor data_f;
 	
-	c_element_inst_0:	entity work.c_element
-	port map
+	comp_0_gen: if (DATA_WIDTH = 1) generate
+		-- completion detection of a single bit does not require C-Elements
+		completion_vector(0) <= rail_state(0);
+	else generate
+		c_element_inst_0:	entity work.c_element
+		port map
 		(
 			in1 => rail_state(0),
 			in2 => rail_state(1),
 			out1 => completion_vector(0)
 		);
+	end generate;
+	  
 				
 	GEN_C_ELEMENT : for i in 1 to DATA_WIDTH-2 generate
 		

@@ -20,6 +20,7 @@ entity add_block_tb is
 	signal b_t,b_f: std_logic_vector(1 downto 0);
 	signal c_t,c_f: std_logic_vector(1 downto 0);
 	signal done : std_logic;
+	signal complete : std_logic;
 end add_block_tb;
 
 architecture beh of add_block_tb is
@@ -31,7 +32,8 @@ begin
 	port map(
 		-- flags
 		rst			=> reset,
-		done			=> done,
+		ack_in   	=> complete,
+		ack_out   	=> done,
 		-- Input channel
 		inA_data_t  => a_t,
 		inA_data_f  => a_f,
@@ -40,6 +42,15 @@ begin
 		-- Output channel
 		outC_data_t => c_t,
 		outC_data_f => c_f
+	);
+	
+	cd_c : entity work.completion_detector
+	generic map ( DATA_WIDTH => 2)
+	port map(
+		data_t => c_t,
+		data_f => c_f,
+		rst => reset,
+		complete => complete
 	);
 		
 	mux_stimuli : process

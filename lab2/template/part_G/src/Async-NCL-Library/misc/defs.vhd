@@ -17,6 +17,8 @@ package defs is
 	constant REG_CQ_DELAY : time := 1 ns; -- Clk to Q delay
 	constant ADDER_DELAY : time := 15 ns; -- Adder delay
 	
+	constant SEL_DELAY : time := 2 ns; -- Selector delay
+	
 	constant OR2_DELAY  : time := 2 ns; -- 2 input OR gate
 	constant XOR_DELAY	  : time := 3 ns; --2 input XOR gate
 

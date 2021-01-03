@@ -1,6 +1,6 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -hex /LCM_tb/A /LCM_tb/B /LCM_tb/result
+add wave -hex /LCM_tb/A /LCM_tb/B /LCM_tb/lcm_calc/*
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ps} 0}
 quietly wave cursor active 0
