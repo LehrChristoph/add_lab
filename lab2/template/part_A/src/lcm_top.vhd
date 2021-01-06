@@ -26,7 +26,8 @@ begin
 lcm_calc: entity work.lcm
 	generic map ( DATA_WIDTH => DATA_WIDTH)
 	port map(
-		AB => A&B,
+		A => A,
+		B => B,
 		RESULT => result,
 		rst => res_n,
 		i_req => req_AB,
