@@ -11,8 +11,8 @@ set_property IOSTANDARD LVCMOS33 [get_ports heartbeat_led]
 set_property PACKAGE_PIN K18 [get_ports res]
 set_property IOSTANDARD LVCMOS33 [get_ports res]
 
-set_property PACKAGE_PIN G14 [get_ports res_led]
-set_property IOSTANDARD LVCMOS33 [get_ports res_led]
+set_property PACKAGE_PIN G14 [get_ports timer_led]
+set_property IOSTANDARD LVCMOS33 [get_ports timer_led]
 
 create_clock -period 8.000 -name clk -add [get_ports clk]
 
