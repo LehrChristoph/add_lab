@@ -98,6 +98,8 @@ set_location_assignment PIN_E21 -to RESULT[0]
 
 
 
+set_global_assignment -name VHDL_FILE ../../common/sync/sync_pkg.vhd
+set_global_assignment -name VHDL_FILE ../../common/sync/sync.vhd
 set_global_assignment -name VHDL_FILE "../src/Async-NCL-Library/components/wchb_ncl.vhd"
 set_global_assignment -name VHDL_FILE "../src/Async-NCL-Library/components/full_adder.vhd"
 set_global_assignment -name VHDL_FILE "../src/Async-NCL-Library/misc/defs.vhd"
