@@ -30,7 +30,7 @@ end add_block;
 architecture Behavioral of add_block is
 	signal carry_init_f : std_logic := '0';
 	signal input_carry_t, input_carry_f, output_carry_t, output_carry_f   : std_logic_vector(DATA_WIDTH-2 downto 0);
-	signal done_vect, completion_vector, add_t, add_f  : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal completion_vector, add_t, add_f  : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal inA_complete, inB_complete, input_complete : std_logic;
 	signal calc_complete, calc_done : std_logic;
 	
@@ -66,8 +66,6 @@ begin
 	full_adder_first_inst : entity work.full_adder
 	port map
 	(
-		-- flags
-		done			=> done_vect(0),
 		-- Input channel
 		inA_data_t  => inA_data_selected_t(0),
 		inA_data_f  => inA_data_selected_f(0),
@@ -87,8 +85,6 @@ begin
 		full_adder_inst : entity work.full_adder
 		port map
 		(
-			-- flags
-			done			=> done_vect(i),
 			-- Input channel
 			inA_data_t  => inA_data_selected_t(i),
 			inA_data_f  => inA_data_selected_f(i),
@@ -107,8 +103,6 @@ begin
 	full_adder_last_inst : entity work.full_adder
 	port map
 	(
-		-- flags
-		done			=> done_vect(DATA_WIDTH-1),
 		-- Input channel
 		inA_data_t  => inA_data_selected_t(DATA_WIDTH-1),
 		inA_data_f  => inA_data_selected_f(DATA_WIDTH-1),
@@ -122,26 +116,7 @@ begin
 		carry_out_t => open,
 		carry_out_f => open
 	);
-	
---	c_element_inst_0:	entity work.c_element
---	port map
---		(
---			in1 => done_vect(0),
---			in2 => done_vect(1),
---			out1 => completion_vector(0)
---		);
---				
---	GEN_C_ELEMENT : for i in 1 to DATA_WIDTH-2 generate
---		
---		c_element_inst :	entity work.c_element
---		port map
---		(
---			in1 => completion_vector(i-1),
---			in2 => done_vect(i+1),
---			out1 => completion_vector(i)
---		);
---	end generate GEN_C_ELEMENT;
-	
+
 	calc_cd : entity work.completion_detector
 	generic map ( DATA_WIDTH => DATA_WIDTH)
 	port map(
@@ -165,12 +140,6 @@ begin
 		if rst = '1' then
 			ack_out <= '0';
 		else
---			if DATA_WIDTH = 1 then
---				done_temp := completion_vector(0);
---			else
---				done_temp := completion_vector(DATA_WIDTH-2);
---			end if;
---			done_temp := completion_vector(DATA_WIDTH-2);
 			if calc_done = '1' then
 				ack_out <= '1' after CD_DELAY;
 			else 

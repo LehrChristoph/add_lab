@@ -32,7 +32,7 @@ entity mux is
 end mux;
 
 architecture arch of mux is
-	signal inA_buffered_complete, inB_buffered_complete, inA_enable_celement, inB_enable_celement : std_logic;
+	signal inA_buffered_complete, inB_buffered_complete : std_logic;
 	signal inA_data_buffered_t, inA_data_buffered_f : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal inB_data_buffered_t, inB_data_buffered_f : std_logic_vector(DATA_WIDTH-1 downto 0);
 begin
@@ -43,7 +43,7 @@ begin
 		port map
 		(
 			in1 => inA_data_t(i),
-			in2 => inA_enable_celement,
+			in2 => selector_f,
 			out1 => inA_data_buffered_t(i)
 		);
 			
@@ -51,7 +51,7 @@ begin
 		port map
 		(
 			in1 => inA_data_f(i),
-			in2 => inA_enable_celement,
+			in2 => selector_f,
 			out1 => inA_data_buffered_f(i)
 		);
 		
@@ -59,7 +59,7 @@ begin
 		port map
 		(
 			in1 => inB_data_t(i),
-			in2 => inB_enable_celement,
+			in2 => selector_t,
 			out1 => inB_data_buffered_t(i)
 		);
 		
@@ -67,7 +67,7 @@ begin
 		port map
 		(
 			in1 => inB_data_f(i),
-			in2 => inB_enable_celement,
+			in2 => selector_t,
 			out1 => inB_data_buffered_f(i)
 		);
 	end generate GEN_C_ELEMENT;
@@ -78,8 +78,8 @@ begin
 	)
 	port map(
 		rst => rst,
-		data_t => inA_data_t,
-		data_f => inA_data_f,
+		data_t => inA_data_buffered_t,
+		data_f => inA_data_buffered_f,
 		complete => inA_buffered_complete
 	);
 	
@@ -89,25 +89,9 @@ begin
 	)
 	port map(
 		rst => rst,
-		data_t => inB_data_t,
-		data_f => inB_data_f,
+		data_t => inB_data_buffered_t,
+		data_f => inB_data_buffered_f,
 		complete => inB_buffered_complete
-	);
-	
-	c_element_inst_selector_t : entity work.c_element
-	port map
-	(
-		in1 => inA_buffered_complete,
-		in2 => selector_f,
-		out1 => inA_enable_celement
-	);
-		
-	c_element_inst_selector_f : entity work.c_element
-	port map
-	(
-		in1 => inB_buffered_complete,
-		in2 => selector_t,
-		out1 => inB_enable_celement
 	);
 	
 	
