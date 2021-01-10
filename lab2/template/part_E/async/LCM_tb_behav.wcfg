@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="LCM_top_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="LCM_top_tb" />
+            <top_module name="ci_math_pkg" />
+            <top_module name="ci_ram_pkg" />
+            <top_module name="ci_uart_pkg" />
+            <top_module name="ci_util_pkg" />
+            <top_module name="defs" />
+            <top_module name="sync_pkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="24583168833fs"></ZoomStartTime>
+      <ZoomEndTime time="172082181834fs"></ZoomEndTime>
+      <Cursor1Time time="60904528000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="228"></NameColumnWidth>
+      <ValueColumnWidth column_width="182"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="12" />
+   <wvobject type="logic" fp_name="/LCM_top_tb/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/LCM_top_tb/rst">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/LCM_top_tb/DATA_WIDTH_IF">
+      <obj_property name="ElementShortName">DATA_WIDTH_IF</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH_IF</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/LCM_top_tb/LCM_module/lcm_inst/o_req">
+      <obj_property name="ElementShortName">o_req</obj_property>
+      <obj_property name="ObjectShortName">o_req</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/LCM_top_tb/LCM_module/i_req">
+      <obj_property name="ElementShortName">i_req</obj_property>
+      <obj_property name="ObjectShortName">i_req</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/LCM_top_tb/LCM_module/lcm_inst/o_req">
+      <obj_property name="ElementShortName">o_req</obj_property>
+      <obj_property name="ObjectShortName">o_req</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/LCM_top_tb/LCM_module/res">
+      <obj_property name="ElementShortName">res</obj_property>
+      <obj_property name="ObjectShortName">res</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/LCM_top_tb/LCM_module/error_led">
+      <obj_property name="ElementShortName">error_led</obj_property>
+      <obj_property name="ObjectShortName">error_led</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/LCM_top_tb/LCM_module/heartbeat_led">
+      <obj_property name="ElementShortName">heartbeat_led</obj_property>
+      <obj_property name="ObjectShortName">heartbeat_led</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/LCM_top_tb/LCM_module/res_syn">
+      <obj_property name="ElementShortName">res_syn</obj_property>
+      <obj_property name="ObjectShortName">res_syn</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/LCM_top_tb/LCM_module/lcm_inst/RESULT">
+      <obj_property name="ElementShortName">RESULT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">RESULT[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/LCM_top_tb/LCM_module/proc_time">
+      <obj_property name="ElementShortName">proc_time[15:0]</obj_property>
+      <obj_property name="ObjectShortName">proc_time[15:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+</wave_config>

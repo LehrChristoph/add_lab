@@ -20,14 +20,17 @@ entity control_port is
 		res_n : in std_logic;
 		rx    : in std_logic;
 		tx    : out std_logic;
-		proc_time : in std_logic_vector(15 downto 0);
+		proc_time : in std_logic_vector(31 downto 0);
 		result : in std_logic_vector(31 downto 0);
-		ctrl : in std_logic_vector(3 downto 0)
+		ctrl : in std_logic_vector(3 downto 0);
+		int_result : in std_logic_vector(31 downto 0);
+		dbg2 : in std_logic_vector(31 downto 0);
+		lcm_dbg : in std_logic_vector(7 downto 0)
 	);
 end entity;
 
 architecture arch of control_port is
-	constant ADDR_WIDTH : integer := 2;
+	constant ADDR_WIDTH : integer := 3;
 	constant HEX_READER_DATA_WIDTH : integer := 4;
 	constant HEX_WRITER_DATA_WIDTH : integer := 32;
 
@@ -208,6 +211,15 @@ begin
 						elsif(unsigned(hex_reader_value(ADDR_WIDTH-1 downto 0)) = 2) then
 							hex_writer_value(ctrl'length-1 downto 0) <= ctrl;
 							hex_writer_width <= std_logic_vector(to_unsigned(ctrl'length, log2c(HEX_WRITER_DATA_WIDTH)));
+						elsif(unsigned(hex_reader_value(ADDR_WIDTH-1 downto 0)) = 3) then
+							hex_writer_value(int_result'length-1 downto 0) <= int_result;
+							hex_writer_width <= std_logic_vector(to_unsigned(int_result'length, log2c(HEX_WRITER_DATA_WIDTH)));
+						elsif(unsigned(hex_reader_value(ADDR_WIDTH-1 downto 0)) = 4) then
+							hex_writer_value(dbg2'length-1 downto 0) <= dbg2;
+							hex_writer_width <= std_logic_vector(to_unsigned(dbg2'length, log2c(HEX_WRITER_DATA_WIDTH)));
+						elsif(unsigned(hex_reader_value(ADDR_WIDTH-1 downto 0)) = 5) then
+							hex_writer_value(lcm_dbg'length-1 downto 0) <= lcm_dbg;
+							hex_writer_width <= std_logic_vector(to_unsigned(lcm_dbg'length, log2c(HEX_WRITER_DATA_WIDTH)));
 						else
 							hex_writer_start <= '0';
 							fsm_state <= PRINT_ERROR;

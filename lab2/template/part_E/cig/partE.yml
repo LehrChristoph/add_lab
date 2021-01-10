@@ -3,23 +3,31 @@ general:
 interface:
   proc_time:
     type: input
-    width: 16 
+    width: 32
   result:
     type: input
-    width: 32 
+    width: 32
   ctrl:
     type: input
     width: 4
+  int_result:
+    type: input
+    width: 32
+#  start:
+#    type: input
+#    width: 4
+  dbg2:
+    type: input
+    width: 32
+  lcm_dbg:
+    type: input
+    width: 8
 #
-# Examples for other other possible interfaces 
+# Examples for other other possible interfaces
 #
 # Creates a 32 bit wide output signal, after reset the output value will be initalized to 0xdeadbeef
-#  output_signal:
-#    type: output
-#    width: 32
-#    default: 0xdeadbeef
 #
-# Creates a single bit output signal, that can be set for excatly one clock cycle by writing 1 to the interface 
+# Creates a single bit output signal, that can be set for excatly one clock cycle by writing 1 to the interface
 #  start:
 #    type: event
 #
