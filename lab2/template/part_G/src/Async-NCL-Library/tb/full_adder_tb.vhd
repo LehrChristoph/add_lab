@@ -29,8 +29,6 @@ begin
 		DATA_WIDTH => 2
 	)
 	port map(
-		-- flags
-		done			=> done,
 		-- Input channel
 		inA_data_t  => a_t,
 		inA_data_f  => a_f,

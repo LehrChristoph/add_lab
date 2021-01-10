@@ -26,65 +26,82 @@ entity sel_a_not_b is
 
 architecture Behavioral of sel_a_not_b is
 	signal selector_complete : std_logic;
-   signal enable_c_elements : std_logic; 
 	signal a_t, a_f, b_t, b_f : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
-	signal a_buffered_t, a_buffered_f, b_buffered_t, b_buffered_f : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
-	signal input_complete, selector_temp_t, selector_temp_f : std_logic;
+	signal a_t_xor_b_t, a_f_xor_b_f, a_t_xor_b_f, a_f_xor_b_t, a_not_b_t, a_not_b_f :std_logic_vector(DATA_WIDTH/2 -1 downto 0);
+	
+	signal stage_complete : std_logic_vector(DATA_WIDTH/2 -1 downto 1);
+	signal completion_vector : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
+	signal computation_complete : std_logic;
 	
 begin
+
 	a_t <= in_data_t(DATA_WIDTH - 1 downto DATA_WIDTH/2);
 	b_t <= in_data_t(DATA_WIDTH/2 -1 downto 0);
 
 	a_f <= in_data_f(DATA_WIDTH - 1 downto DATA_WIDTH/2);
 	b_f <= in_data_f(DATA_WIDTH/2 -1 downto 0);
+		
+	a_t_xor_b_t(0) <= a_t(0) xor b_t(0) after XOR_DELAY;
+	a_f_xor_b_f(0) <= a_f(0) xor b_f(0) after XOR_DELAY;
 	
-	cd_input : entity work.completion_detector
-	generic map ( DATA_WIDTH => DATA_WIDTH)
-	port map(
-		data_t => in_data_t,
-		data_f => in_data_f,
-		rst => rst,
-		complete => input_complete
-	);
-
-	c_element_inst_inBf : entity work.c_element
+	a_t_xor_b_f(0) <= a_t(0) xor b_f(0) after XOR_DELAY;
+	a_f_xor_b_t(0) <= a_f(0) xor b_t(0) after XOR_DELAY;
+	
+	a_not_b_t(0) <= a_t_xor_b_t(0) and a_f_xor_b_f(0) after AND2_DELAY;
+	a_not_b_f(0) <= a_t_xor_b_f(0) and a_f_xor_b_t(0) after AND2_DELAY;
+	
+	completion_vector(0) <= a_not_b_t(0) or a_not_b_f(0) after OR2_DELAY;
+	
+	
+	GEN_A_NOT_B : for i in 1 to DATA_WIDTH/2 -1 generate
+		a_t_xor_b_t(i) <= a_t(i) xor b_t(i) after XOR_DELAY;
+		a_f_xor_b_f(i) <= a_f(i) xor b_f(i) after XOR_DELAY;
+		
+		a_t_xor_b_f(i) <= a_t(i) xor b_f(i) after XOR_DELAY;
+		a_f_xor_b_t(i) <= a_f(i) xor b_t(i) after XOR_DELAY;
+				
+		a_not_b_t(i) <= (a_t_xor_b_t(i) and a_f_xor_b_f(i))  or a_not_b_t(i-1) after AND2_DELAY+OR2_DELAY;
+		a_not_b_f(i) <=  a_t_xor_b_f(i) and a_f_xor_b_t(i)  and a_not_b_f(i-1) after AND3_DELAY;
+		
+		stage_complete(i) <= a_not_b_t(i) or a_not_b_f(i) after OR2_DELAY;
+		
+		c_element_stage_complete : entity work.c_element
+		port map
+		(
+			in1 => stage_complete(i),
+			in2 => completion_vector(i-1),
+			out1 => completion_vector(i)
+		);
+		
+	end generate GEN_A_NOT_B;
+	
+	c_element_inst_selector_t : entity work.c_element
 	port map
 	(
-		in1 => selector_complete,
-		in2 => ack_in,
-		out1 => enable_c_elements
+		in1 => a_not_b_t(a_not_b_t'length -1),
+		in2 => completion_vector(completion_vector'length -1),
+		out1 => selector_t
 	);
 	
-	ack_out <= enable_c_elements;
+	c_element_inst_selector_f : entity work.c_element
+	port map
+	(
+		in1 => a_not_b_f(a_not_b_f'length -1),
+		in2 => completion_vector(completion_vector'length -1),
+		out1 => selector_f
+	);
+		
+	c_element_inst_ack : entity work.c_element
+	port map
+	(
+		in1 => completion_vector(completion_vector'length -1),
+		in2 => ack_in,
+		out1 => ack_out
+	);
 	
-	
-	selector_temp_t <= '1' when a_t /= b_t else '0';
-	selector_temp_f <= '0' when a_f /= b_f else '1';
-				
-	set_outputs : process (input_complete, rst) --, selector_temp_t , selector_temp_f)
-	begin
-		if rst = '1' then
-			selector_t <= '0';
-			selector_f <= '0';
-			
-		else
-						
-			if input_complete = '1' then
-				selector_t <= selector_temp_t after SEL_DELAY;
-				selector_f <= selector_temp_f after SEL_DELAY;
+--	selector_t <= a_not_b_t(a_not_b_t'length -1);
+--	selector_f <= a_not_b_f(a_not_b_f'length -1);
+--	
+--	selector_complete <= selector_t or selector_f after OR2_DELAY;
 
-				if (selector_temp_t or selector_temp_f) = '1' then
-					selector_complete <= '1';
-				else 
-					selector_complete <= '0';
-				end if;
-				
-			else
-				selector_t <= '0';
-				selector_f <= '0';
-				selector_complete <= '0';
-			end if;
-		end if;
-	end process;
-	
 end Behavioral;

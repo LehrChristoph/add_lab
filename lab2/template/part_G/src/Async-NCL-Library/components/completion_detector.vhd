@@ -35,17 +35,18 @@ begin
 		);
 	end generate;
 	  
-				
-	GEN_C_ELEMENT : for i in 1 to DATA_WIDTH-2 generate
-		
-		c_element_inst :	entity work.c_element
-		port map
-		(
-			in1 => completion_vector(i-1),
-			in2 => rail_state(i+1),
-			out1 => completion_vector(i)
-		);
-	end generate GEN_C_ELEMENT;
+	comp_1_gen: if (DATA_WIDTH > 2) generate
+		GEN_C_ELEMENT : for i in 1 to DATA_WIDTH-2 generate
+			
+			c_element_inst :	entity work.c_element
+			port map
+			(
+				in1 => completion_vector(i-1),
+				in2 => rail_state(i+1),
+				out1 => completion_vector(i)
+			);
+		end generate GEN_C_ELEMENT;
+	end generate;
 	
 	set_complete_flag : process (completion_vector, rst)
 		variable comp_temp : std_logic := '0';
@@ -53,7 +54,7 @@ begin
 		if rst = '1' then
 			complete <= '0';
 		else
-			if DATA_WIDTH = 1 then
+			if DATA_WIDTH <= 2 then
 				comp_temp := completion_vector(0);
 			else
 				comp_temp := completion_vector(DATA_WIDTH-2);

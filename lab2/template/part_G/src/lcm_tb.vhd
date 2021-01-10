@@ -8,6 +8,7 @@ use ieee.numeric_std.all;
 library std; -- for Printing
 use std.textio.all;
 use ieee.std_logic_textio.all;
+use std.env.stop;
 
 entity LCM_tb is
 	
@@ -24,10 +25,9 @@ entity LCM_tb is
 	signal complete : std_logic;
 	
 	type type_array is array(0 to 4) of integer;
-	signal A_test_data : type_array :=  (2,  64, 28, 33,8);
-	signal B_test_data : type_array :=  (3,  13,  7, 44,8);
-	signal control_data : type_array := (6, 832, 28,132,8);
-	
+	signal A_test_data : type_array :=  (2,  64, 28,  33,  8);
+	signal B_test_data : type_array :=  (3,  13,  7,  44,  8);
+	signal control_data : type_array := (6, 832, 28, 132, 16);
 end LCM_tb;
 
 architecture beh of LCM_tb is
@@ -45,8 +45,8 @@ begin
 		RESULT_t => result_t,
 		RESULT_f => result_f,
 		rst   	=> reset,
-		ack_in	=> ack_result,
-		ack_out	=> ack_AB
+		ack_result=> ack_result,
+		ack_input => ack_AB
 	);
 	
 	cd_test : entity work.completion_detector
@@ -62,15 +62,14 @@ begin
 	lcm_stimuli : process
 		variable iteration : integer := 0 ;
 		variable A_temp, B_temp : integer;
-		variable var_reqAB : std_logic := '0';
-		variable var_ackRes : std_logic := '0';
 	begin		
+		ack_result <= '0';
+		
 		while iteration < 5 loop
 
-			ack_result <= var_ackRes;
-		
+			
 			wait until rising_edge(clk);
-
+			
 			A_temp := A_test_data(iteration);
 			B_temp := B_test_data(iteration);
 
@@ -89,7 +88,6 @@ begin
 			
 			wait until ack_AB = '0';
 			
-			wait until ack_AB = '0';
 			wait until complete = '1';
 			
 			assert(result_t = std_logic_vector(to_unsigned( control_data(iteration), 16)))
@@ -98,18 +96,20 @@ begin
 					"got " & to_string(result_t) & lf &
 					"expected " & to_string(control_data(iteration)) & lf
 				severity error;
-				
-			wait until rising_edge(clk);
-
+			ack_result <= '1';
 			
-
+			wait until complete = '0';
+			
+			ack_result <= '0';
 			iteration := iteration +1;
-
 			wait until rising_edge(clk);
-			
-			wait;
+			wait until rising_edge(clk);
+
 		end loop;
-		wait;
+		
+		wait until rising_edge(clk);
+		wait until rising_edge(clk);
+		stop;
 	end process;
 	
 	generate_clk : process
