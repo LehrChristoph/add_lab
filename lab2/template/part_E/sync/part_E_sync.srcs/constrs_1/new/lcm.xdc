@@ -5,6 +5,9 @@ set_property IOSTANDARD LVCMOS33 [get_ports clk]
 set_property PACKAGE_PIN M14 [get_ports error_led]
 set_property IOSTANDARD LVCMOS33 [get_ports error_led]
 
+set_property PACKAGE_PIN M15 [get_ports correct_led]
+set_property IOSTANDARD LVCMOS33 [get_ports correct_led]
+
 set_property PACKAGE_PIN D18 [get_ports heartbeat_led]
 set_property IOSTANDARD LVCMOS33 [get_ports heartbeat_led]
 
