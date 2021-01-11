@@ -14,7 +14,7 @@ vcom -work work -2008 ../src/Async-Click-Library-master/components/fork.vhd
 vcom -work work -2008 ../src/Async-Click-Library-master/components/join.vhd
 vcom -work work -2008 ../src/Async-Click-Library-master/components/MUX.vhd
 vcom -work work -2008 ../src/Async-Click-Library-master/components/reg_demux.vhdl
-vcom -work work -2008 ../src/Async-Click-Library-master/components/reg_merge.vhd
+vcom -work work -2008 ../src/Async-Click-Library-master/components/merge.vhd
 vcom -work work -2008 ../src/Async-Click-Library-master/components/reg_fork.vhd
 
 vcom -work work -2008 ../src/Async-Click-Library-master/funcblocks/add_block.vhd

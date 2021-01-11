@@ -28,7 +28,8 @@ begin
 		port map(
 			clk	=> clk,
 			res_n	=> res_n,
-			AB 	=> A&B,
+			A => A,
+			B => B,
 			ready => ready,
 			done 	=> done,
 			result=> result,

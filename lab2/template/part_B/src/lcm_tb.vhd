@@ -24,9 +24,9 @@ entity LCM_tb is
     signal AB : std_logic_vector(DATA_WIDTH-1 downto 0);
 
     type type_array is array(0 to 3) of integer;
-    signal A_test_data : type_array :=  ( 64, 28, 33,8);
-    signal B_test_data : type_array :=  ( 13,  7, 44,8);
-    signal control_data : type_array := (832, 28,132,8);
+    signal A_test_data : type_array :=  ( 64, 28, 33, 8);
+    signal B_test_data : type_array :=  ( 13,  7, 44, 8);
+    signal control_data : type_array := (832, 28,132,16);
     signal stop_clock : boolean := false;
 
 end LCM_tb;
@@ -41,7 +41,8 @@ begin
     port map(
         clk     => clk,
         res_n   => not reset,
-        AB      => AB,
+        A       => A,
+        B       => B,
         ready   => ready,
         done    => done,
         result  => result,
@@ -49,22 +50,20 @@ begin
     );
 
     lcm_stimuli : process
-        variable iteration : integer := 0 ;
-        variable A_temp, B_temp : integer;
+        variable iteration : natural := 0 ;
+        variable A_temp, B_temp : unsigned(DATA_WIDTH/2-1 downto 0);
         variable var_reqAB : std_logic := '0';
         variable var_ackRes : std_logic := '0';
     begin
-        while iteration < 4 loop
+        while iteration < control_data'length loop
 
             wait until rising_edge(clk);
 
-            A_temp := A_test_data(iteration);
-            B_temp := B_test_data(iteration);
+            A_temp := to_unsigned(A_test_data(iteration), DATA_WIDTH/2);
+            B_temp := to_unsigned(B_test_data(iteration), DATA_WIDTH/2);
 
-            A <= std_logic_vector(to_unsigned(A_temp, 8));
-            B <= std_logic_vector(to_unsigned(B_temp, 8));
-            AB(15 downto 8) <= std_logic_vector(to_unsigned(A_temp, 8));
-            AB( 7 downto 0) <= std_logic_vector(to_unsigned(B_temp, 8));
+            A <= std_logic_vector(A_temp);
+            B <= std_logic_vector(B_temp);
 
             wait until rising_edge(clk);
             ready <= '1';
@@ -75,7 +74,7 @@ begin
 
             wait until valid = '1';
 
-            assert(result = std_logic_vector(to_unsigned( control_data(iteration), 16)))
+            assert(result = std_logic_vector(to_unsigned( control_data(iteration), DATA_WIDTH)))
                 report
                     "lcm of " & to_string(A_temp) & " and " & to_string(B_temp) & lf &
                     "got " & to_string(to_integer(unsigned(result))) & lf &

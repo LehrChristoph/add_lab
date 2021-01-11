@@ -1,6 +1,6 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -decimal /LCM_tb/A /LCM_tb/B /LCM_tb/result
+add wave -unsigned /LCM_tb/A /LCM_tb/B /LCM_tb/result
 add wave -group LCM_CALC /lcm_tb/lcm_calc/*
 
 TreeUpdate [SetDefaultTree]

@@ -10,7 +10,6 @@ entity fork is
   generic ( 
     PHASE_INIT  : std_logic := '0');
   port(
-   rst          : in std_logic;
    -- Input channel
    inA_ack      : out std_logic;
    -- Output channel 1
@@ -21,17 +20,9 @@ entity fork is
 end fork;
 
 architecture arch of fork is
-	
-	component c_element is 
-		port(
-			in1, in2 : in std_logic;
-			out1 : out std_logic
-		);
-	end component;
-	
 begin
 
-	c_element_inst_f :	c_element
+	c_element_inst_f : entity work.c_element
 		port map(
 			in1 => outB_ack,
 			in2 => outC_ack,
