@@ -24,22 +24,29 @@ begin
 	reset <= '1' when ((in1 ='0') and (in2 = '0') and (in3 = '0')) else '0'; 
 	init_output <= '1' when ( out1 /='1' and out1 /='0' and set= '0') 	else '0'; 
 	
-	c_elem_proc : process(set, reset, init_output, in1, in2, in3)
-		variable prev_out : std_logic := '0';
-	begin
-		if reset = '1'  then 
-			temp_output <= '0';
-		elsif init_output = '1' then
-			if (in1 ='1') and (in2 = '1') and (in3 = '1') then
-				temp_output <= '1';
-			else 
-				temp_output <= '0';
-			end if;
-		elsif rising_edge(set) then
-			temp_output <= '1';
-		end if;
-
-	end process c_elem_proc;
+	temp_output <=	'1' when set = '1'else
+						'0' when reset = '1' else
+						'0' when init_output = '1' else out1;
+	out1 <= temp_output after C_ELEMENT_3_DELAY;
 	
-	out1 <= temp_output after C_ELEMENT_3_DELAY;	
+--	c_elem_proc : process(set, reset, init_output, in1, in2, in3)
+--		variable prev_out : std_logic := '0';
+--	begin
+--		if reset = '1'  then 
+--			temp_output <= '0';
+--		elsif init_output = '1' then
+--			if (in1 ='1') and (in2 = '1') and (in3 = '1') then
+--				temp_output <= '1';
+--			else 
+--				temp_output <= '0';
+--			end if;
+--		elsif rising_edge(set) then
+--			temp_output <= '1';
+--		end if;
+--
+--	end process c_elem_proc;
+--	
+--	out1 <= temp_output after C_ELEMENT_3_DELAY;	
 end architecture;
+
+
