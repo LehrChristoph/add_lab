@@ -55,6 +55,14 @@ begin
 		
 		wait until rising_edge(clk);
 		a <= '1';
+		b <= '1';
+		
+		wait until rising_edge(clk);
+		a <= '0';
+		b <= '0';
+
+		wait until rising_edge(clk);
+		a <= '1';
 		
 		wait until rising_edge(clk);
 		b <= '1';
