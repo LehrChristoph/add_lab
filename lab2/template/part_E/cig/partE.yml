@@ -16,12 +16,20 @@ interface:
 #  start:
 #    type: input
 #    width: 4
-  dbg2:
-    type: input
-    width: 32
-  lcm_dbg:
-    type: input
-    width: 8
+#  dbg2:
+#    type: input
+#    width: 32
+#  lcm_dbg:
+#    type: input
+#    width: 8
+  A:
+    type: output
+    width: 16
+    default: 0xC3FB
+  B:
+    type: output
+    width: 16
+    default: 0xE7A3
 #
 # Examples for other other possible interfaces
 #

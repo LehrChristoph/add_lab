@@ -24,14 +24,14 @@ entity control_port is
 		result : in std_logic_vector(31 downto 0);
 		ctrl : in std_logic_vector(3 downto 0);
 		int_result : in std_logic_vector(31 downto 0);
-		dbg2 : in std_logic_vector(31 downto 0);
-		lcm_dbg : in std_logic_vector(7 downto 0)
+		A : out std_logic_vector(15 downto 0);
+		B : out std_logic_vector(15 downto 0)
 	);
 end entity;
 
 architecture arch of control_port is
 	constant ADDR_WIDTH : integer := 3;
-	constant HEX_READER_DATA_WIDTH : integer := 4;
+	constant HEX_READER_DATA_WIDTH : integer := 16;
 	constant HEX_WRITER_DATA_WIDTH : integer := 32;
 
 	signal uart_tx_data : std_logic_vector(7 downto 0);
@@ -163,7 +163,10 @@ begin
 			str_writer_start <= '0';
 			write_address <= (others=>'0');
 			read_address <= (others=>'0');
-			
+			A <= (others=>'0');
+			A(15 downto 0) <= "1100001111111011"; -- 0xc3fb
+			B <= (others=>'0');
+			B(15 downto 0) <= "1110011110100011"; -- 0xe7a3
 		elsif (rising_edge(clk)) then
 			fsm_rx_rd <= '0';
 			hex_reader_start <= '0';
@@ -215,11 +218,11 @@ begin
 							hex_writer_value(int_result'length-1 downto 0) <= int_result;
 							hex_writer_width <= std_logic_vector(to_unsigned(int_result'length, log2c(HEX_WRITER_DATA_WIDTH)));
 						elsif(unsigned(hex_reader_value(ADDR_WIDTH-1 downto 0)) = 4) then
-							hex_writer_value(dbg2'length-1 downto 0) <= dbg2;
-							hex_writer_width <= std_logic_vector(to_unsigned(dbg2'length, log2c(HEX_WRITER_DATA_WIDTH)));
+							hex_writer_value(A'length-1 downto 0) <= A;
+							hex_writer_width <= std_logic_vector(to_unsigned(A'length, log2c(HEX_WRITER_DATA_WIDTH)));
 						elsif(unsigned(hex_reader_value(ADDR_WIDTH-1 downto 0)) = 5) then
-							hex_writer_value(lcm_dbg'length-1 downto 0) <= lcm_dbg;
-							hex_writer_width <= std_logic_vector(to_unsigned(lcm_dbg'length, log2c(HEX_WRITER_DATA_WIDTH)));
+							hex_writer_value(B'length-1 downto 0) <= B;
+							hex_writer_width <= std_logic_vector(to_unsigned(B'length, log2c(HEX_WRITER_DATA_WIDTH)));
 						else
 							hex_writer_start <= '0';
 							fsm_state <= PRINT_ERROR;
@@ -249,7 +252,10 @@ begin
 						hex_reader_start <= '1';
 						fsm_state <= WRITE_OPERATION_READ_DATA;
 						write_address <= hex_reader_value(ADDR_WIDTH-1 downto 0);
-						if (false) then null;
+						if(unsigned(hex_reader_value(ADDR_WIDTH-1 downto 0)) = 4) then
+							hex_reader_max_length <= std_logic_vector(to_unsigned(A'length, log2c(HEX_READER_DATA_WIDTH)));
+						elsif(unsigned(hex_reader_value(ADDR_WIDTH-1 downto 0)) = 5) then
+							hex_reader_max_length <= std_logic_vector(to_unsigned(B'length, log2c(HEX_READER_DATA_WIDTH)));
 						else
 							hex_reader_start <= '0';
 							fsm_state <= PRINT_ERROR;
@@ -263,7 +269,10 @@ begin
 				when WRITE_OPERATION_READ_DATA =>
 					if (hex_reader_done = '1') then
 						fsm_state <= PRINT_OK;
-						if (false) then null;
+						if(unsigned(write_address) = 4) then
+							A <= hex_reader_value(A'length-1 downto 0);
+						elsif(unsigned(write_address) = 5) then
+							B <= hex_reader_value(B'length-1 downto 0);
 						else
 							fsm_state <= PRINT_ERROR;
 						end if;

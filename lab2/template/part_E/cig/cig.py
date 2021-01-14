@@ -504,7 +504,7 @@ def main():
 			read_op_cases += "\t"*7 + "hex_writer_width <= std_logic_vector(to_unsigned(" + name + "'length, log2c(HEX_WRITER_DATA_WIDTH)));\n"
 
 			write_op_addr_cases += "\t"*6 + "elsif(unsigned(hex_reader_value(ADDR_WIDTH-1 downto 0)) = " + str(address) + ") then\n"
-			write_op_addr_cases += "\t"*7 + "hex_reader_max_length <= std_logic_vector(to_unsigned(" + name + "'length, log2c(HEX_WRITER_DATA_WIDTH)));\n"
+			write_op_addr_cases += "\t"*7 + "hex_reader_max_length <= std_logic_vector(to_unsigned(" + name + "'length, log2c(HEX_READER_DATA_WIDTH)));\n"
 
 			write_op_data_cases += "\t"*6 + "elsif(unsigned(write_address) = " + str(address) + ") then\n"
 			write_op_data_cases += "\t"*7 + name + " <= hex_reader_value(" + name + "'length-1 downto 0);\n"
@@ -514,7 +514,7 @@ def main():
 			default_assignments += "\t\t\t" + name + " <= '0';\n"
 
 			write_op_addr_cases += "\t"*6 + "elsif(unsigned(hex_reader_value(ADDR_WIDTH-1 downto 0)) = " + str(address) + ") then\n"
-			write_op_addr_cases += "\t"*7 + "hex_reader_max_length <= std_logic_vector(to_unsigned(1, log2c(HEX_WRITER_DATA_WIDTH)));\n"
+			write_op_addr_cases += "\t"*7 + "hex_reader_max_length <= std_logic_vector(to_unsigned(1, log2c(HEX_READER_DATA_WIDTH)));\n"
 
 			write_op_data_cases += "\t"*6 + "elsif(unsigned(write_address) = " + str(address) + " and hex_reader_value(0) = '1') then\n"
 			write_op_data_cases += "\t"*7 + name + " <= '1';\n"

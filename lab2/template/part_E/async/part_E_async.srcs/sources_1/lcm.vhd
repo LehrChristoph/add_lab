@@ -16,8 +16,7 @@ entity lcm is
     i_req:  in std_logic;
     i_ack:  out std_logic;
     o_req: out std_logic;
-    o_ack: in std_logic;
-    lcm_dbg : out std_logic_vector(7 downto 0)
+    o_ack: in std_logic
   );
 end lcm;
 
@@ -192,17 +191,10 @@ begin
   m1_reqSel <= r1_out_req;
   r1_out_ack <= m1_ackSel;
 
-  --de2 to r2
-  r2_in_data <= de2_dataC;
-  r2_in_req <= de2_reqC;
-  de2_ackC <= r2_in_ack;
-
-  --r2 to m1
-  m1_dataB <= r2_out_data;
-  m1_reqB <= r2_out_req;
-  r2_out_ack <= m1_ackB;
-
-  lcm_dbg <= m1_reqA & m1_ackA & m1_reqSel & fr1_reqA & fr1_ackA & '0' & m1_reqC & m1_ackC;
+  --de2 to m1
+  m1_dataB <= de2_dataC;
+  m1_reqB <= de2_reqC;
+  de2_ackC <= m1_ackB;
 
   m1_select_input: entity work.mux
   generic map(

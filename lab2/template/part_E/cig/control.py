@@ -34,7 +34,7 @@ def main():
 
 	uart.open()
 
-	interface_table = {"proc_time": {"address": 0, "type": "input"}, "result": {"address": 1, "type": "input"}, "ctrl": {"address": 2, "type": "input"}, "int_result": {"address": 3, "type": "input"}, "dbg2": {"address": 4, "type": "input"}, "lcm_dbg": {"address": 5, "type": "input"}}
+	interface_table = {"proc_time": {"address": 0, "type": "input"}, "result": {"address": 1, "type": "input"}, "ctrl": {"address": 2, "type": "input"}, "int_result": {"address": 3, "type": "input"}, "A": {"address": 4, "type": "output"}, "B": {"address": 5, "type": "output"}}
 
 	if(options["<INTERFACE>"] not in interface_table):
 		print("Unknown Interface!")

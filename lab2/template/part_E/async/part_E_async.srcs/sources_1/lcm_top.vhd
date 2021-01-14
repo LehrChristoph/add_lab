@@ -5,8 +5,6 @@ use IEEE.numeric_std.all;
 
 entity top is
   generic(
-    valA : natural := 50_171;
-    valB : natural := 59_299;
     DATA_WIDTH_IF : natural := 32
     );
   port(
@@ -28,11 +26,8 @@ architecture beh of top is
   signal result_out : std_logic_vector(31 downto 0);
   signal proc_time : std_logic_vector(US_WIDTH-1 downto 0);
   signal o_req_sync : std_logic_vector(2 downto 0);
-  signal lcm_dbg : std_logic_vector(7 downto 0);
   signal start_switch_syn : std_logic;
   signal us_counter : unsigned (US_WIDTH-1 downto 0);
-  signal last_btn : std_logic;
-  signal start_signal : std_logic;
 
   constant CLK_FREQ : natural := 125_000_000;
 begin
@@ -57,8 +52,6 @@ begin
       data_out => start_switch_syn
     );
 
-  A <= std_logic_vector(to_unsigned(valA,DATA_WIDTH_IF/2));
-  B <= std_logic_vector(to_unsigned(valB,DATA_WIDTH_IF/2));
   res_syn <= not res_syn_n;
 
   i_ack_inv <= not i_ack;
@@ -84,8 +77,7 @@ begin
       i_ack => i_ack,
       result => result,
       o_req => o_req,
-      o_ack => o_ack,
-      lcm_dbg => lcm_dbg
+      o_ack => o_ack
     );
 
   measurement : process(res_syn_n, clk)
@@ -97,7 +89,6 @@ begin
       result_out <= (others => '0');
       start_time := (others => '0');
       o_req_sync <= (others => '0');
-      last_btn <= '0';
     elsif rising_edge(clk) then
       o_req_sync(2) <= o_req_sync(1);
       o_req_sync(1) <= o_req_sync(0);
@@ -180,9 +171,9 @@ begin
       proc_time => std_logic_vector(resize(unsigned(proc_time), 32)),
       result => result_out,
       int_result => result,
-      dbg2 => std_logic_vector(resize(us_counter, 32)),
       ctrl => i_req & i_ack & o_req & o_ack,
-      lcm_dbg => lcm_dbg
+      A => A,
+      B => B
   );
 
   --ctrl : in std_logic_vector(3 downto 0);

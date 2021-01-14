@@ -5,7 +5,7 @@ package defs is
 	constant DATA_WIDTH : Integer := 32;
 	constant DATA_WIDTH_IF : Integer := DATA_WIDTH;
 	--Delay size
-	constant ADD_DELAY : integer := 15;
+	constant ADD_DELAY : integer := 6;
 	constant LUT_CHAIN_SIZE : integer := 10;
 	constant AND2_DELAY : time := 2 ns; -- 2 input AND gate
 	constant AND3_DELAY : time := 3 ns; -- 3 input AND gate
