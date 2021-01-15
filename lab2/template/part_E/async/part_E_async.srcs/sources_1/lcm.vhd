@@ -80,10 +80,6 @@ signal cmp2_in_data : std_logic_vector(2*DATA_WIDTH-1 downto 0);
 signal r1_in_ack, r1_in_req, r1_in_data, r1_out_ack, r1_out_req, r1_out_data : std_logic;
 
 
-signal r2_in_ack, r2_in_req, r2_out_ack, r2_out_req : std_logic;
-signal r2_in_data, r2_out_data : std_logic_vector(DATAPATH_WIDTH-1 downto 0);
-
-
 signal f1_reqA, f1_ackA, f1_reqB, f1_ackB, f1_reqC, f1_ackC : std_logic;
 
 
@@ -385,22 +381,6 @@ begin
    out_req =>    r1_out_req,
    out_ack =>    r1_out_ack,
    out_data(0)=> r1_out_data
- );
-  r2_buffer_datapath: entity work.decoupled_hs_reg
-  generic map(
-   DATA_WIDTH=> DATAPATH_WIDTH,
-   VALUE => 0,
-   PHASE_INIT_IN => '0',
-   PHASE_INIT_OUT => '0'
-  )
-  port map (
-   rst => rst,
-   in_req =>  r2_in_req,
-   in_ack =>  r2_in_ack,
-   in_data=>  r2_in_data,
-   out_req => r2_out_req,
-   out_ack => r2_out_ack,
-   out_data=> r2_out_data
  );
 
 f1_fork_select_in_output: entity work.fork
