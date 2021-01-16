@@ -80,7 +80,7 @@ def main():
 		if (response.lower() == "error"):
 			print("ERROR reading interface " + options["<INTERFACE>"])
 			exit(1)
-		print("0x" + response)
+		print(f"0x{response} (0b{int(response, 16):b}) ({int(response, 16)})")
 	else:
 		cmd = b"iw"
 		cmd += format(interface_table[options["<INTERFACE>"]]["address"], 'x').encode("utf-8") + b" "

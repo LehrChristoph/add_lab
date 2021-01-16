@@ -34,7 +34,7 @@ def main():
 
 	uart.open()
 
-	interface_table = {"proc_time": {"address": 0, "type": "input"}, "result": {"address": 1, "type": "input"}, "ctrl": {"address": 2, "type": "input"}}
+	interface_table = {"proc_time": {"address": 0, "type": "input"}, "result": {"address": 1, "type": "input"}, "ctrl": {"address": 2, "type": "input"}, "int_result": {"address": 3, "type": "input"}, "dbg2": {"address": 4, "type": "input"}, "lcm_dbg": {"address": 5, "type": "input"}}
 
 	if(options["<INTERFACE>"] not in interface_table):
 		print("Unknown Interface!")
@@ -53,7 +53,7 @@ def main():
 		if (response.lower() == "error"):
 			print("ERROR reading interface " + options["<INTERFACE>"])
 			exit(1)
-		print("0x" + response)
+		print(f"0x{response} (0b{int(response, 16):b}) ({int(response, 16)})")
 	else:
 		cmd = b"iw"
 		cmd += format(interface_table[options["<INTERFACE>"]]["address"], 'x').encode("utf-8") + b" "

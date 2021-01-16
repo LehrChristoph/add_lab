@@ -9,7 +9,7 @@ use UNISIM.vcomponents.all;
 entity top is
   port(
     clk, res : in std_logic;
-    error_led, heartbeat_led, timer_led : out std_logic
+    error_led, heartbeat_led, timer_led, correct_led : out std_logic
     );
 end entity;
 
@@ -88,12 +88,15 @@ my_pll : clk_wiz_0
   begin
     if syn_res_n= '0' then
       error_led <= '0';
+      correct_led <= '0';
     elsif rising_edge(clk_pll) then
 
       if valid = '1' then
 
         if (result /= x"B15445D1") then
           error_led <= '1';
+        else
+          correct_led <= '1';
         end if;
       end if;
     end if;
