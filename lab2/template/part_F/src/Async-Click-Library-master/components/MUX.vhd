@@ -30,27 +30,41 @@ entity mux is
 end mux;
 
 architecture arch of mux is
-  signal en : std_logic;
+  signal en, enA, enB : std_logic;
+
+  signal outC_reqA, outC_reqB : std_logic;
+  signal inSel_ackA, inSel_ackB : std_logic;
 
   signal int_in_ack : std_logic;
 
 begin
+  outC_req <= outC_reqA or outC_reqB;
+  inSel_ack <= inSel_ackA or inSel_ackB;
 
-  inA_ack <= int_in_ack and selector(0);
-  inB_ack <= int_in_ack and (not selector(0));
-
-  handshake : entity work.handshake_dual_input
+  handshakeA : entity work.handshake_dual_input
   port map (
     rst => rst,
-    inA_req => inA_req xor inB_req,
-    inA_ack => int_in_ack,
+    inA_req => inA_req,
+    inA_ack => inA_ack,
     inB_req => inSel_req,
-    inB_ack => inSel_ack,
-    out_req => outC_req,
+    inB_ack => inSel_ackA,
+    out_req => outC_reqA,
     out_ack => outC_ack,
-    en => en
+    en => enA
+  );
+  handshakeB : entity work.handshake_dual_input
+  port map (
+    rst => rst,
+    inA_req => inB_req,
+    inA_ack => inB_ack,
+    inB_req => inSel_req,
+    inB_ack => inSel_ackB,
+    out_req => outC_reqB,
+    out_ack => outC_ack,
+    en => enB
   );
 
+  en <= enA or enB;
   latch_data : process(rst, en)
   begin
     if rst = '1' then
