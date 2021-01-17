@@ -76,31 +76,21 @@ begin
 			wait until ack_AB = '0';
 
 			wait until req_result = '1';
-			wait for 1000 ns;
+			wait for 500 ns;
 			assert(result = std_logic_vector(to_unsigned( control_data(iteration), 16)))
 				report
 					"lcm of " & to_string(A_temp) & " and " & to_string(B_temp) & lf &
 					"got " & to_string(result) & lf &
 					"expected " & to_string(control_data(iteration)) & lf
 				severity error;
-			wait for 500 ns;
 			ack_result <= '1';
 			wait until req_result = '0';
 			wait for 500 ns;
-			wait for 500 ns;
 			ack_result <= '0';
-			wait until rising_edge(clk);
-			wait until rising_edge(clk);
-			wait until rising_edge(clk);
-			wait until rising_edge(clk);
-			wait until rising_edge(clk);
-			wait until rising_edge(clk);
 
 			iteration := iteration +1;
 
-			wait until rising_edge(clk);
-			wait until rising_edge(clk);
-			wait until rising_edge(clk);
+			wait for 500 ns;
 		end loop;
 		wait for CLK_PERIOD*10;
 		stop_clock <= true;
