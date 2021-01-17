@@ -19,14 +19,30 @@ entity LCM_top is
 end LCM_top;
 
 architecture STRUCTURE of LCM_top is
+	signal signal_tap_clk : std_logic;
+	signal lcm_clk : std_logic;
+	
+	component pll is 
+	port(
+		inclk0		: IN STD_LOGIC := '0';
+		c0		: OUT STD_LOGIC
+	);
+	end component;
+		
 begin
-
+	
+	pll_inst : pll
+	port map(
+		inclk0 => clk,
+		c0 => lcm_clk
+	);
+	
 	lcm_calc: entity work.LCM
 		generic map (
 			DATA_WIDTH => result'length
 		)
 		port map(
-			clk	=> clk,
+			clk	=> lcm_clk,
 			res_n	=> res_n,
 			A => A,
 			B => B,

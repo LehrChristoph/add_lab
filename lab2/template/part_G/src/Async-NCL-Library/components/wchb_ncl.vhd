@@ -34,6 +34,9 @@ architecture STRUCTURE of wchb_ncl is
 	signal in_selected_t: std_logic_vector(DATA_WIDTH-1 downto 0):= (others => '0'); 
 	signal in_selected_f : std_logic_vector(DATA_WIDTH-1 downto 0):= (others => '0');
 	signal internal_ack, enable_c_elements, internal_done, ack_in_temp : std_logic := '0';
+	
+	attribute keep: boolean;
+	attribute keep of temp_t, temp_f: signal is true;
 begin
 	GEN_C_ELEMENT : for i in 0 to DATA_WIDTH-1 generate	
 		c_element_inst_t : entity work.c_element
@@ -89,7 +92,7 @@ begin
 			
 			ack_out <= '0';
 			enable_c_elements <= INIT_PHASE;
-			ack_in_temp <= '0';
+			ack_in_temp <= not INIT_PHASE;
 		else
 			in_selected_t <= in_t;
 			in_selected_f <= in_f;
