@@ -194,8 +194,7 @@ begin
 
   m1_select_input: entity work.mux
   generic map(
-    DATA_WIDTH => DATAPATH_WIDTH,
-    PHASE_INIT_SEL => '0'
+    DATA_WIDTH => DATAPATH_WIDTH
   )
    port map (
     rst => rst,
@@ -215,10 +214,7 @@ begin
 
   fr1_fork_reg: entity work.reg_fork
   generic map(
-    DATA_WIDTH => DATAPATH_WIDTH,
-    PHASE_INIT_A => '0',
-    PHASE_INIT_B =>'0',
-    PHASE_INIT_C => '0'
+    DATA_WIDTH => DATAPATH_WIDTH
   )
    port map (
     rst => rst,
@@ -315,10 +311,7 @@ begin
 
   fr2_fork_reg: entity work.reg_fork
   generic map(
-    DATA_WIDTH => DATAPATH_WIDTH,
-    PHASE_INIT_A => '0',
-    PHASE_INIT_B =>'0',
-    PHASE_INIT_C => '0'
+    DATA_WIDTH => DATAPATH_WIDTH
   )
    port map (
     rst => rst,
@@ -370,8 +363,7 @@ begin
   generic map(
    DATA_WIDTH=> 1,
    VALUE => 1,
-   PHASE_INIT_IN => '0',
-   PHASE_INIT_OUT => '1'
+   INIT_REQUEST => '1'
   )
   port map (
    rst => rst,
