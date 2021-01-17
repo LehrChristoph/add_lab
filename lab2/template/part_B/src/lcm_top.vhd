@@ -25,21 +25,16 @@ architecture STRUCTURE of LCM_top is
 	component pll is 
 	port(
 		inclk0		: IN STD_LOGIC := '0';
-		c0		: OUT STD_LOGIC;
-		c1		: OUT STD_LOGIC
+		c0		: OUT STD_LOGIC
 	);
 	end component;
-	
-	attribute keep: boolean;
-	attribute keep of signal_tap_clk: signal is true;
 		
 begin
 	
 	pll_inst : pll
 	port map(
 		inclk0 => clk,
-		c0 => signal_tap_clk,
-		c1 => lcm_clk
+		c0 => lcm_clk
 	);
 	
 	lcm_calc: entity work.LCM
