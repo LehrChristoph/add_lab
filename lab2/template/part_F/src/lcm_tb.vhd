@@ -53,12 +53,12 @@ begin
 	lcm_stimuli : process
 		variable iteration : integer := 0 ;
 		variable A_temp, B_temp : integer;
-		variable var_reqAB : std_logic := '0';
-		variable var_ackRes : std_logic := '0';
 	begin
+		A <= (others => '0');
+		B <= (others => '0');
 		while iteration < A_test_data'LENGTH loop
-			req_AB <= var_reqAB;
-			ack_result <= var_ackRes;
+			req_AB <= '0';
+			ack_result <= '0';
 
 			wait until rising_edge(clk);
 
@@ -69,27 +69,27 @@ begin
 			B <= std_logic_vector(to_unsigned(B_temp, 8));
 
 			wait until rising_edge(clk);
-			var_reqAB := not var_reqAB;
-			req_AB <= var_reqAB;
-			wait until ack_AB = var_reqAB;
+			req_AB <= '1';
+			wait until ack_AB = '1';
+			req_AB <= '0';
+			wait until ack_AB = '0';
 
-			wait until req_result = req_AB;
+			wait until req_result = '1';
 			assert(result = std_logic_vector(to_unsigned( control_data(iteration), 16)))
 				report
 					"lcm of " & to_string(A_temp) & " and " & to_string(B_temp) & lf &
 					"got " & to_string(result) & lf &
 					"expected " & to_string(control_data(iteration)) & lf
 				severity error;
+			ack_result <= '1';
+			wait until req_result = '0';
+			ack_result <= '0';
 			wait until rising_edge(clk);
 			wait until rising_edge(clk);
 			wait until rising_edge(clk);
 			wait until rising_edge(clk);
 			wait until rising_edge(clk);
 			wait until rising_edge(clk);
-
-			ack_result <= req_result;
-			var_ackRes := req_result;
-			var_reqAB := req_result;
 
 			iteration := iteration +1;
 
@@ -106,7 +106,7 @@ begin
 	begin
 		reset <= '1';
 		clk <= '0';
-		wait for CLK_PERIOD;
+		wait for 50 ns;
 		reset <= '0';
 
 		while not stop_clock loop

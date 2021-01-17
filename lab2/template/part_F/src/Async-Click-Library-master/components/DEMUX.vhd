@@ -7,19 +7,16 @@ use ieee.std_logic_1164.all;
 use work.defs.all;
 
 entity demux is
-	generic(
-		DATA_WIDTH    : natural := DATA_WIDTH;
-		PHASE_INIT_A  : std_logic := '0';
-		PHASE_INIT_B  : std_logic := '0';
-		PHASE_INIT_C  : std_logic := '0'
-	);
+  generic(
+    DATA_WIDTH    : natural := DATA_WIDTH
+  );
   port(
     rst           : in  std_logic;
     -- Input port
     inA_req       : in  std_logic;
     inA_data      : in std_logic_vector(DATA_WIDTH-1 downto 0);
     inA_ack       : out std_logic;
-    -- Select port 
+    -- Select port
     inSel_req     : in  std_logic;
     inSel_ack     : out std_logic;
     selector      : in std_logic;
@@ -36,46 +33,34 @@ end demux;
 
 architecture Behavioral of demux is
 
-  signal phase_a : std_logic;
-  signal click_req, click_ack : std_logic;
-  
-  signal phase_b : std_logic;
-  signal phase_c : std_logic;
+  signal en : std_logic;
+  signal int_out_req : std_logic;
 
 begin
-    
-  -- Control Path   
-  inSel_ack <= phase_a;
-  inA_ack <= phase_a;
-  outB_req <= phase_b;
-  outB_data <= inA_data;
-  outC_req <= phase_c;
-  outC_data <= inA_data;
-  
-  -- Request FF clock function
-  click_req <= (inSel_req and not(phase_a) and inA_req) or (not(inSel_req) and phase_a and not(inA_req)) after ANDOR3_DELAY + NOT1_DELAY;
-  
-  -- Acknowledge FF clock function
-  click_ack <= (outB_ack xnor phase_b) and (outC_ack xnor phase_c) after AND2_DELAY + XOR_DELAY + NOT1_DELAY;
+  outB_req <= int_out_req and selector;
+  outC_req <= int_out_req and (not selector);
 
-  req : process(click_req, rst)
+  handshake_in : entity work.handshake_dual_input
+  port map (
+    rst => rst,
+    inA_req => inA_req,
+    inA_ack => inA_ack,
+    inB_req => inSel_req,
+    inB_ack => inSel_ack,
+    out_req => int_out_req,
+    out_ack => outB_ack xor outC_ack,
+    en => en
+  );
+
+  req : process(en, rst)
     begin
       if rst = '1' then
-        phase_b <= PHASE_INIT_B;
-        phase_c <= PHASE_INIT_C;
-      elsif rising_edge(click_req) then
-        phase_b <= phase_b xor selector after REG_CQ_DELAY;
-        phase_c <= phase_c xor not(selector) after REG_CQ_DELAY;
+        outB_data <= (others => '0');
+        outC_data <= (others => '0');
+      elsif rising_edge(en) then
+        outB_data <= inA_data;
+        outC_data <= inA_data;
       end if;
     end process req;
-    
-  ack : process(click_ack, rst)
-    begin
-      if rst = '1' then
-        phase_a <= PHASE_INIT_A;
-      elsif rising_edge(click_ack) then
-        phase_a <= not phase_a after REG_CQ_DELAY;
-      end if;
-    end process ack;
-	
+
 end Behavioral;

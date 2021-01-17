@@ -7,12 +7,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 use work.defs.all;
 
 entity merge is
-	generic(
-		DATA_WIDTH    : natural := DATA_WIDTH;
-		PHASE_INIT_C  : std_logic := '0';
-		PHASE_INIT_A  : std_logic := '0';
-		PHASE_INIT_B  : std_logic := '0'
-	);
+  generic(
+    DATA_WIDTH    : natural := DATA_WIDTH
+  );
   port (rst   : in std_logic;
     --Input channel 1
     inA_req   : in std_logic;
@@ -31,48 +28,47 @@ end merge;
 
 architecture Behavioral of merge is
 
-  signal inA_token, inB_token, outC_bubble : std_logic;
-  signal phase_a, phase_b, phase_c: std_logic;
-  signal click : std_logic;
-  signal data_reg, data_sig: std_logic_vector(DATA_WIDTH-1 downto 0);
-  
-  attribute dont_touch : string;
-  attribute dont_touch of  phase_c, phase_a, phase_b, inA_token, inB_token : signal is "true";   
-  attribute dont_touch of  click : signal is "true";  
+  signal enA, enB : std_logic;
+  signal outC_reqA : std_logic;
+  signal outC_reqB : std_logic;
+  signal en : std_logic;
 
 begin
-  inA_token <= inA_req xor phase_a after XOR_DELAY;
-  inB_token <= inB_req xor phase_b after XOR_DELAY;
-  outC_bubble <= phase_c xnor outC_ack after XOR_DELAY;
-  -- Click function
-  click <= inA_token or inB_token after OR2_DELAY;
 
-  clock_req : process(click, rst)
+  outC_req <= outC_reqA xor outC_reqB;
+
+  handshake_A : entity work.handshake
+  port map (
+    rst => rst,
+    in_req => inA_req,
+    in_ack => inA_ack,
+    out_req => outC_reqA,
+    out_ack => outC_ack,
+    en => enA
+  );
+  handshake_B : entity work.handshake
+  port map (
+    rst => rst,
+    in_req => inB_req,
+    in_ack => inB_ack,
+    out_req => outC_reqB,
+    out_ack => outC_ack,
+    en => enB
+  );
+
+  en <= enA or enB;
+
+  memory_proc : process(en, rst)
     begin
       if rst = '1' then
-        phase_c <= PHASE_INIT_C;
-      elsif rising_edge(click) then
-        phase_c <= not phase_c after REG_CQ_DELAY;
+        outC_data <= (others => '0');
+      elsif rising_edge(en) then
+        if inA_req = '1' then
+          outC_data <= inA_data;
+        else
+          outC_data <= inB_data;
+        end if;
       end if;
     end process;
-    
-    
-  clock_ack : process(outC_bubble, rst)
-    begin
-      if rst = '1' then
-        phase_a <= PHASE_INIT_A;
-        phase_b <= PHASE_INIT_B;
-      elsif rising_edge(outC_bubble) then
-        phase_a <= inA_req after REG_CQ_DELAY;
-        phase_b <= inB_req after REG_CQ_DELAY;
-      end if;
-    end process;
-    
-  outC_data <= inA_data when inA_token = '1' else 
-               inB_data when inB_token = '1' else 
-               (others => '0');
-  outC_req <= phase_c;
-  inA_ack <= phase_a;
-  inB_ack <= phase_b;
 
 end Behavioral;

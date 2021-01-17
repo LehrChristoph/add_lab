@@ -21,7 +21,7 @@ architecture arch of delay_element is
         attribute preserve of s: signal is true;
 begin
         s(0) <= d;
-        z <= s(SIZE);
+        z <= s(SIZE) after SIZE*1 ns;
         g_luts: for i in 0 to SIZE-1 generate
                 cmp_LUT: LCELL
                 port map(

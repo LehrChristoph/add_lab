@@ -27,6 +27,67 @@ add wave -ports -hex -group cmp1_sA_g_sB             /lcm_tb/lcm_calc/cmp1_sA_g_
 add wave -ports -hex -group fr1_fork_reg             /lcm_tb/lcm_calc/fr1_fork_reg/*
 add wave -ports -hex -group m1_select_input          /lcm_tb/lcm_calc/m1_select_input/*
 
+quietly virtual signal -install /lcm_tb/lcm_calc/de1_choose_sum { /lcm_tb/lcm_calc/de1_choose_sum/inA_data(47 downto 40)} i_A
+quietly virtual signal -install /lcm_tb/lcm_calc/de1_choose_sum { /lcm_tb/lcm_calc/de1_choose_sum/inA_data(39 downto 32)} i_B
+quietly virtual signal -install /lcm_tb/lcm_calc/de1_choose_sum { /lcm_tb/lcm_calc/de1_choose_sum/inA_data(31 downto 16)} i_sumA
+quietly virtual signal -install /lcm_tb/lcm_calc/de1_choose_sum { /lcm_tb/lcm_calc/de1_choose_sum/inA_data(15 downto 0)}  i_sumB
+
+add wave -noupdate -expand -group de1_choose_sum -group inData -radix unsigned /lcm_tb/lcm_calc/de1_choose_sum/i_A
+add wave -noupdate -expand -group de1_choose_sum -group inData -radix unsigned /lcm_tb/lcm_calc/de1_choose_sum/i_B
+add wave -noupdate -expand -group de1_choose_sum -group inData -radix unsigned /lcm_tb/lcm_calc/de1_choose_sum/i_sumA
+add wave -noupdate -expand -group de1_choose_sum -group inData -radix unsigned /lcm_tb/lcm_calc/de1_choose_sum/i_sumB
+
+quietly virtual signal -install /lcm_tb/lcm_calc/de1_choose_sum { /lcm_tb/lcm_calc/de1_choose_sum/outB_data(47 downto 40)} o_A
+quietly virtual signal -install /lcm_tb/lcm_calc/de1_choose_sum { /lcm_tb/lcm_calc/de1_choose_sum/outB_data(39 downto 32)} o_B
+quietly virtual signal -install /lcm_tb/lcm_calc/de1_choose_sum { /lcm_tb/lcm_calc/de1_choose_sum/outB_data(31 downto 16)} o_sumA
+quietly virtual signal -install /lcm_tb/lcm_calc/de1_choose_sum { /lcm_tb/lcm_calc/de1_choose_sum/outB_data(15 downto 0)}  o_sumB
+
+add wave -noupdate -expand -group de1_choose_sum -group outDataB -radix unsigned /lcm_tb/lcm_calc/de1_choose_sum/o_A
+add wave -noupdate -expand -group de1_choose_sum -group outDataB -radix unsigned /lcm_tb/lcm_calc/de1_choose_sum/o_B
+add wave -noupdate -expand -group de1_choose_sum -group outDataB -radix unsigned /lcm_tb/lcm_calc/de1_choose_sum/o_sumA
+add wave -noupdate -expand -group de1_choose_sum -group outDataB -radix unsigned /lcm_tb/lcm_calc/de1_choose_sum/o_sumB
+
+quietly virtual signal -install /lcm_tb/lcm_calc/de2_choose_result { /lcm_tb/lcm_calc/de2_choose_result/inA_data(47 downto 40)} i_A
+quietly virtual signal -install /lcm_tb/lcm_calc/de2_choose_result { /lcm_tb/lcm_calc/de2_choose_result/inA_data(39 downto 32)} i_B
+quietly virtual signal -install /lcm_tb/lcm_calc/de2_choose_result { /lcm_tb/lcm_calc/de2_choose_result/inA_data(31 downto 16)} i_sumA
+quietly virtual signal -install /lcm_tb/lcm_calc/de2_choose_result { /lcm_tb/lcm_calc/de2_choose_result/inA_data(15 downto 0)}  i_sumB
+
+add wave -noupdate -expand -group de2_choose_result -group inData -radix unsigned /lcm_tb/lcm_calc/de2_choose_result/i_A
+add wave -noupdate -expand -group de2_choose_result -group inData -radix unsigned /lcm_tb/lcm_calc/de2_choose_result/i_B
+add wave -noupdate -expand -group de2_choose_result -group inData -radix unsigned /lcm_tb/lcm_calc/de2_choose_result/i_sumA
+add wave -noupdate -expand -group de2_choose_result -group inData -radix unsigned /lcm_tb/lcm_calc/de2_choose_result/i_sumB
+
+quietly virtual signal -install /lcm_tb/lcm_calc/de2_choose_result { /lcm_tb/lcm_calc/de2_choose_result/outB_data(47 downto 40)} o_A
+quietly virtual signal -install /lcm_tb/lcm_calc/de2_choose_result { /lcm_tb/lcm_calc/de2_choose_result/outB_data(39 downto 32)} o_B
+quietly virtual signal -install /lcm_tb/lcm_calc/de2_choose_result { /lcm_tb/lcm_calc/de2_choose_result/outB_data(31 downto 16)} o_sumA
+quietly virtual signal -install /lcm_tb/lcm_calc/de2_choose_result { /lcm_tb/lcm_calc/de2_choose_result/outB_data(15 downto 0)}  o_sumB
+
+add wave -noupdate -expand -group de2_choose_result -group outData -radix unsigned /lcm_tb/lcm_calc/de2_choose_result/o_A
+add wave -noupdate -expand -group de2_choose_result -group outData -radix unsigned /lcm_tb/lcm_calc/de2_choose_result/o_B
+add wave -noupdate -expand -group de2_choose_result -group outData -radix unsigned /lcm_tb/lcm_calc/de2_choose_result/o_sumA
+add wave -noupdate -expand -group de2_choose_result -group outData -radix unsigned /lcm_tb/lcm_calc/de2_choose_result/o_sumB
+
+quietly virtual signal -install /lcm_tb/lcm_calc/fr1_fork_reg { /lcm_tb/lcm_calc/fr1_fork_reg/inA_data(47 downto 40)} i_A
+quietly virtual signal -install /lcm_tb/lcm_calc/fr1_fork_reg { /lcm_tb/lcm_calc/fr1_fork_reg/inA_data(39 downto 32)} i_B
+quietly virtual signal -install /lcm_tb/lcm_calc/fr1_fork_reg { /lcm_tb/lcm_calc/fr1_fork_reg/inA_data(31 downto 16)} i_sumA
+quietly virtual signal -install /lcm_tb/lcm_calc/fr1_fork_reg { /lcm_tb/lcm_calc/fr1_fork_reg/inA_data(15 downto 0)}  i_sumB
+
+add wave -noupdate -expand -group fr1_fork_reg -group inData -radix unsigned /lcm_tb/lcm_calc/fr1_fork_reg/i_A
+add wave -noupdate -expand -group fr1_fork_reg -group inData -radix unsigned /lcm_tb/lcm_calc/fr1_fork_reg/i_B
+add wave -noupdate -expand -group fr1_fork_reg -group inData -radix unsigned /lcm_tb/lcm_calc/fr1_fork_reg/i_sumA
+add wave -noupdate -expand -group fr1_fork_reg -group inData -radix unsigned /lcm_tb/lcm_calc/fr1_fork_reg/i_sumB
+
+quietly virtual signal -install /lcm_tb/lcm_calc/fr1_fork_reg { /lcm_tb/lcm_calc/fr1_fork_reg/outB_data(47 downto 40)} o_A
+quietly virtual signal -install /lcm_tb/lcm_calc/fr1_fork_reg { /lcm_tb/lcm_calc/fr1_fork_reg/outB_data(39 downto 32)} o_B
+quietly virtual signal -install /lcm_tb/lcm_calc/fr1_fork_reg { /lcm_tb/lcm_calc/fr1_fork_reg/outB_data(31 downto 16)} o_sumA
+quietly virtual signal -install /lcm_tb/lcm_calc/fr1_fork_reg { /lcm_tb/lcm_calc/fr1_fork_reg/outB_data(15 downto 0)}  o_sumB
+
+add wave -noupdate -expand -group fr1_fork_reg -group outData -radix unsigned /lcm_tb/lcm_calc/fr1_fork_reg/o_A
+add wave -noupdate -expand -group fr1_fork_reg -group outData -radix unsigned /lcm_tb/lcm_calc/fr1_fork_reg/o_B
+add wave -noupdate -expand -group fr1_fork_reg -group outData -radix unsigned /lcm_tb/lcm_calc/fr1_fork_reg/o_sumA
+add wave -noupdate -expand -group fr1_fork_reg -group outData -radix unsigned /lcm_tb/lcm_calc/fr1_fork_reg/o_sumB
+
+
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ps} 0}
 quietly wave cursor active 0

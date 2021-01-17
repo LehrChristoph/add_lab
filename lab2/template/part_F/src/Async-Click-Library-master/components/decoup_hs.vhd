@@ -8,11 +8,11 @@ use ieee.numeric_std.all;
 use work.defs.all;
 
 entity decoupled_hs_reg is
-  generic ( 
+  generic (
     DATA_WIDTH      : natural := DATA_WIDTH;
     VALUE           : natural  := 0;
-    PHASE_INIT_IN   : std_logic := '0';
-    PHASE_INIT_OUT  : std_logic := '0');
+    INIT_REQUEST    : std_logic := '0'
+    );
   port (rst         : in std_logic;
     -- Input channel
     in_ack          : out std_logic;
@@ -26,33 +26,29 @@ end decoupled_hs_reg;
 
 architecture behavioral of decoupled_hs_reg is
 
-  signal phase_in, phase_out : std_logic;
-  signal data_sig: std_logic_vector(DATA_WIDTH-1 downto 0);
-  signal click : std_logic;
-  
-  attribute dont_touch : string;
-  attribute dont_touch of  phase_in, phase_out : signal is "true";   
-  attribute dont_touch of  data_sig : signal is "true";  
-  attribute dont_touch of  click : signal is "true";  
+  signal en : std_logic;
 
 begin
-  out_req <= phase_out;
-  in_ack <= phase_in;
-  out_data <= data_sig;
-  
-  clock_regs: process(click, rst)
+  handshake_inst : entity work.handshake
+  generic map(
+    INIT_STATE => INIT_REQUEST
+  )
+  port map (
+    rst => rst,
+    in_req => in_req,
+    in_ack => in_ack,
+    out_req => out_req,
+    out_ack => out_ack,
+    en => en
+  );
+
+  clock_regs: process(en, rst)
   begin
     if rst = '1' then
-      phase_in <= PHASE_INIT_IN;
-      phase_out <= PHASE_INIT_OUT;
-      data_sig <= std_logic_vector(to_unsigned(VALUE, DATA_WIDTH));
-    elsif rising_edge(click) then
-      phase_in <= not phase_in after REG_CQ_DELAY;
-      phase_out <= not phase_out after REG_CQ_DELAY;
-      data_sig <= in_data after REG_CQ_DELAY;
+      out_data <= std_logic_vector(to_unsigned(VALUE, DATA_WIDTH));
+    elsif rising_edge(en) then
+      out_data <= in_data after REG_CQ_DELAY;
     end if;
   end process;
-  
-  click <= (in_req xor phase_in) and (out_ack xnor phase_out) after AND2_DELAY + XOR_DELAY;
 
 end behavioral;

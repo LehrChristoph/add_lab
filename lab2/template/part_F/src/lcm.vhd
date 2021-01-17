@@ -80,10 +80,6 @@ signal cmp2_in_data : std_logic_vector(2*DATA_WIDTH-1 downto 0);
 signal r1_in_ack, r1_in_req, r1_in_data, r1_out_ack, r1_out_req, r1_out_data : std_logic;
 
 
-signal r2_in_ack, r2_in_req, r2_out_ack, r2_out_req : std_logic;
-signal r2_in_data, r2_out_data : std_logic_vector(DATAPATH_WIDTH-1 downto 0);
-
-
 signal f1_reqA, f1_ackA, f1_reqB, f1_ackB, f1_reqC, f1_ackC : std_logic;
 
 
@@ -191,16 +187,10 @@ begin
   m1_reqSel <= r1_out_req;
   r1_out_ack <= m1_ackSel;
 
-  --de2 to r2
-  r2_in_data <= de2_dataC;
-  r2_in_req <= de2_reqC;
-  de2_ackC <= r2_in_ack;
-
-  --r2 to m1
-  m1_dataB <= r2_out_data;
-  m1_reqB <= r2_out_req;
-  r2_out_ack <= m1_ackB;
-
+  --de2 to m1
+  m1_dataB <= de2_dataC;
+  m1_reqB <= de2_reqC;
+  de2_ackC <= m1_ackB;
 
   m1_select_input: entity work.mux
   generic map(
@@ -211,10 +201,10 @@ begin
     rst => rst,
     inA_req => m1_reqA,
     inA_ack => m1_ackA,
-    inA_data => m1_dataA, -- to_slv(m1_dataA),
+    inA_data => m1_dataA,
     inB_req => m1_reqB,
     inB_ack => m1_ackB,
-    inB_data => m1_dataB, --to_slv(m1_dataB),
+    inB_data => m1_dataB,
     outC_req => m1_reqC,
     outC_ack => m1_ackC,
     outC_data => m1_dataC,
@@ -234,7 +224,7 @@ begin
     rst => rst,
     inA_req => fr1_reqA,
     inA_ack => fr1_ackA,
-    inA_data => fr1_dataA, --to_slv(fr1_dataA),
+    inA_data => fr1_dataA,
     outB_req => fr1_reqB,
     outB_ack => fr1_ackB,
     outB_data => fr1_dataB,
@@ -264,7 +254,7 @@ begin
     rst => rst,
     inA_req => de1_reqA,
     inA_ack => de1_ackA,
-    inA_data => de1_dataA, --to_slv(de1_dataA),
+    inA_data => de1_dataA,
     outB_req => de1_reqB,
     outB_ack => de1_ackB,
     outB_data => de1_dataB,
@@ -314,10 +304,10 @@ begin
     rst => rst,
     inA_req => mrg1_reqA,
     inA_ack => mrg1_ackA,
-    inA_data => mrg1_dataA, --to_slv(mrg1_dataA),
+    inA_data => mrg1_dataA,
     inB_req => mrg1_reqB,
     inB_ack => mrg1_ackB,
-    inB_data => mrg1_dataB, --to_slv(mrg1_dataB),
+    inB_data => mrg1_dataB,
     outC_req => mrg1_reqC,
     outC_ack => mrg1_ackC,
     outC_data => mrg1_dataC
@@ -334,7 +324,7 @@ begin
     rst => rst,
     inA_req => fr2_reqA,
     inA_ack => fr2_ackA,
-    inA_data => fr2_dataA, --to_slv(fr2_dataA),
+    inA_data => fr2_dataA,
     outB_req => fr2_reqB,
     outB_ack => fr2_ackB,
     outB_data => fr2_dataB,
@@ -364,7 +354,7 @@ begin
     rst => rst,
     inA_req => de2_reqA,
     inA_ack => de2_ackA,
-    inA_data => de2_dataA, --to_slv(de2_dataA),
+    inA_data => de2_dataA,
     outB_req => de2_reqB,
     outB_ack => de2_ackB,
     outB_data => de2_dataB,
@@ -391,22 +381,6 @@ begin
    out_req =>    r1_out_req,
    out_ack =>    r1_out_ack,
    out_data(0)=> r1_out_data
- );
-  r2_buffer_datapath: entity work.decoupled_hs_reg
-  generic map(
-   DATA_WIDTH=> DATAPATH_WIDTH,
-   VALUE => 0,
-   PHASE_INIT_IN => '0',
-   PHASE_INIT_OUT => '0'
-  )
-  port map (
-   rst => rst,
-   in_req =>    r2_in_req,
-   in_ack =>    r2_in_ack,
-   in_data=> r2_in_data, --to_slv(r2_in_data),
-   out_req =>    r2_out_req,
-   out_ack =>    r2_out_ack,
-   out_data=> r2_out_data
  );
 
 f1_fork_select_in_output: entity work.fork

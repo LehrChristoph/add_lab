@@ -11,12 +11,9 @@ use ieee.numeric_std.all;
 
 
 entity reg_fork is
-  generic ( 
-    DATA_WIDTH: natural := DATA_WIDTH;
-    VALUE: natural := 0;
-    PHASE_INIT_A : std_logic := '0';
-    PHASE_INIT_B : std_logic := '0';
-    PHASE_INIT_C : std_logic := '0');
+  generic (
+    DATA_WIDTH: natural := DATA_WIDTH
+  );
   Port (
     rst : in std_logic;
     --Input channel
@@ -35,44 +32,28 @@ entity reg_fork is
 
 architecture Behavioral of reg_fork is
 
-signal click: std_logic;
-signal phase_a: std_logic;
-signal phase_b, phase_c, outB_bubble, outC_bubble, inA_token: std_logic;
-signal data_reg: std_logic_vector(DATA_WIDTH-1 downto 0);
-
-attribute dont_touch : string;
-attribute dont_touch of  phase_b, phase_a, phase_c : signal is "true";   
-attribute dont_touch of  data_reg : signal is "true";  
-attribute dont_touch of  click : signal is "true";
-
-
+signal en: std_logic;
 begin
-  inA_token <= inA_req xor phase_a after XOR_DELAY;
-  outB_bubble <= phase_b xnor outB_ack after XOR_DELAY + NOT1_DELAY;
-  outC_bubble <= phase_c xnor outC_ack after XOR_DELAY + NOT1_DELAY;
-  -------------------------------------------------------
+  handshake : entity work.handshake_dual_output
+  port map (
+    rst => rst,
+    in_req => inA_req,
+    in_ack => inA_ack,
+    outA_req => outB_req,
+    outA_ack => outB_ack,
+    outB_req => outC_req,
+    outB_ack => outC_ack,
+    en => en
+  );
 
-  click <= inA_token and outB_bubble and outC_bubble after AND3_DELAY;
-
-  clock_regs: process(click, rst)
+  latch_data: process(en, rst)
   begin
     if rst = '1' then
-      phase_a <= PHASE_INIT_A;
-      phase_b <= PHASE_INIT_B;
-      phase_c <= PHASE_INIT_C;
-      data_reg <= std_logic_vector(to_unsigned(VALUE, DATA_WIDTH));
-    elsif rising_edge(click) then
-      phase_a <= not phase_a after REG_CQ_DELAY;
-      phase_b <= not phase_b after REG_CQ_DELAY;
-      phase_c <= not phase_c after REG_CQ_DELAY;
-      data_reg <= inA_data after REG_CQ_DELAY;
+      outB_data <= (others => '0');
+      outC_data <= (others => '0');
+    elsif rising_edge(en) then
+      outB_data <= inA_data;
+      outC_data <= inA_data;
     end if;
-  end process clock_regs;
-
-  inA_ack <= phase_a;
-  outB_req <= phase_b;
-  outC_req <= phase_c;
-  outB_data <= data_reg;
-  outC_data <= data_reg;
-
+  end process latch_data;
 end Behavioral;
