@@ -39,6 +39,7 @@ architecture Behavioral of sel_a_not_b is
 	signal completion_vector : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
 	
 	attribute keep: boolean;
+	attribute keep of in_selected_t, in_selected_f: signal is true;
 	attribute keep of a_t, a_f, b_t, b_f: signal is true;
 	attribute keep of stage_complete, completion_vector : signal is true;
 	attribute keep of in_buffered_t, in_buffered_f: signal is true;

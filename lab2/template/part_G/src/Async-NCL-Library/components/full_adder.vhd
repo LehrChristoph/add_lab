@@ -30,6 +30,12 @@ end full_adder;
 architecture STRUCTURE of full_adder is
 	signal c_element_1, c_element_2, c_element_3, c_element_4, c_element_5, c_element_6, c_element_7, c_element_8: std_logic;
 	signal gen, kill : std_logic;
+	
+	attribute keep: boolean;
+	attribute keep of inA_data_t, inA_data_f: signal is true;
+	attribute keep of inB_data_t, inB_data_f: signal is true;
+	attribute keep of carry_in_t, carry_in_f : signal is true;
+	
 begin
 
 	c_element_inst_1 :	entity work.c_element_3in

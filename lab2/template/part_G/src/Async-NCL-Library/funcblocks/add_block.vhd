@@ -36,6 +36,13 @@ architecture Behavioral of add_block is
 	
 	signal inA_data_selected_t, inA_data_selected_f, inB_data_selected_t, inB_data_selected_f: std_logic_vector(DATA_WIDTH-1 downto 0);
 	
+	attribute keep: boolean;
+	attribute keep of inA_data_t, inA_data_f: signal is true;
+	attribute keep of inB_data_t, inB_data_f: signal is true;
+	attribute keep of input_carry_t, input_carry_f, output_carry_t, output_carry_f : signal is true;
+	attribute keep of completion_vector, add_t, add_f: signal is true;
+	attribute keep of inA_complete, inB_complete, input_complete: signal is true;
+	attribute keep of calc_complete, calc_done: signal is true;
 	
 begin
 	

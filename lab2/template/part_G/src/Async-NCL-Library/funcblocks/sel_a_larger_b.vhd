@@ -41,6 +41,11 @@ architecture Behavioral of sel_a_larger_b is
 	
 	signal temp_t, temp_f, internal_ack : std_logic;
 	
+	attribute keep: boolean;
+	attribute keep of in_selected_t, in_selected_f: signal is true;
+	attribute keep of a_t, a_f, b_t, b_f: signal is true;
+	attribute keep of stage_complete, completion_vector : signal is true;
+	attribute keep of in_buffered_t, in_buffered_f: signal is true;
 begin
 
 	GEN_C_ELEMENT : for i in 0 to DATA_WIDTH-1 generate	

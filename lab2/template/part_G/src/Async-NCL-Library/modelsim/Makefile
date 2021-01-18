@@ -18,10 +18,10 @@ test_mux:
 	vsim -do "do sim.do; vsim work.mux_tb -t ps; add wave -hex /mux_tb/* ; do cc_wave.do;  run 145 ns; wave zoom full"
 
 test_sel_a_not_b:
-	vsim -do "do sim.do; vsim work.sel_a_not_b_tb -t ps; add wave -hex /sel_a_not_b_tb/* ; do cc_wave.do;  run 90 ns; wave zoom full"
+	vsim -do "do sim.do; vsim work.sel_a_not_b_tb -t ps; add wave -hex /sel_a_not_b_tb/* ; do cc_wave.do; run -all; wave zoom full"
 
 test_sel_a_larger_b:
-	vsim -do "do sim.do; vsim work.sel_a_larger_b_tb -t ps; add wave -hex /sel_a_larger_b_tb/* ; do cc_wave.do;  run -all; wave zoom full"
+	vsim -do "do sim.do; vsim work.sel_a_larger_b_tb -t ps; add wave -hex /sel_a_larger_b_tb/* ; do cc_wave.do; run -all; wave zoom full"
 
 test_merge:
 	vsim -do "do sim.do; vsim work.merge_tb -t ps; add wave -hex /merge_tb/* ; do cc_wave.do;  run 105 ns; wave zoom full"

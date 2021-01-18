@@ -83,7 +83,7 @@ begin
 			inAB_t <= (others => '0');
 			inAB_f <= (others => '0');
 		else	
-			phase_f := AB_t(0) or AB_f(0);
+			phase_f := AB_t(SUM_WIDTH-1) or AB_f(SUM_WIDTH-1);
 			
 			inAB_t(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH) <= AB_t;
 			inAB_t(2*SUM_WIDTH -1 downto SUM_WIDTH+SUMMAND_WIDTH) <= (others => '0');
@@ -214,7 +214,7 @@ begin
 			 de1_A_data_t <= (others => '0');
 			 de1_A_data_f <= (others => '0');
 		else	
-			phase_f := de1_AsumA_data_t(0) or de1_AsumA_data_f(0);
+			phase_f := de1_AsumA_data_t(SUM_WIDTH-1) or de1_AsumA_data_f(SUM_WIDTH-1);
 			
 			de1_A_data_t(DATA_PATH_WIDTH - 1 downto SUM_WIDTH + SUMMAND_WIDTH) <= (others => '0');
 			de1_A_data_t(SUM_WIDTH + SUMMAND_WIDTH -1 downto SUM_WIDTH) <= de1_AsumA_data_t(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH+ SUMMAND_WIDTH);
@@ -267,7 +267,7 @@ begin
 			 de1_B_data_t <= (others => '0');
 			 de1_B_data_f<= (others => '0');
 		else	
-			phase_f := de1_BsumB_data_t(0) or de1_BsumB_data_f(0);
+			phase_f := de1_BsumB_data_t(SUM_WIDTH-1) or de1_BsumB_data_f(SUM_WIDTH-1);
 			
 			de1_B_data_t(DATA_PATH_WIDTH -1 downto SUMMAND_WIDTH) <= (others => '0');
 			de1_B_data_t(SUMMAND_WIDTH -1 downto 0) <= de1_BsumB_data_t(DATA_PATH_WIDTH-SUMMAND_WIDTH -1 downto 2*SUM_WIDTH);
@@ -308,7 +308,7 @@ begin
 	);
 	
 -- merge sumA sumB again
-	mrg1_merge_sums: entity work.reg_merge
+	mrg1_merge_sums: entity work.merge --work.reg_merge
 	generic map(
 		DATA_WIDTH => DATA_PATH_WIDTH
 	)
