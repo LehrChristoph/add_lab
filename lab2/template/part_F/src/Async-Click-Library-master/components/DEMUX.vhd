@@ -36,6 +36,9 @@ architecture Behavioral of demux is
   signal en : std_logic;
   signal int_out_req : std_logic;
 
+  attribute keep : boolean;
+  attribute keep of en : signal is true;
+
 begin
   outB_req <= int_out_req and selector;
   outC_req <= int_out_req and (not selector);

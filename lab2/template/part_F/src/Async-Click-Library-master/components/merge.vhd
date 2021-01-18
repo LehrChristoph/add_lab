@@ -33,6 +33,9 @@ architecture Behavioral of merge is
   signal outC_reqB : std_logic;
   signal en : std_logic;
 
+  attribute keep : boolean;
+  attribute keep of enA, enB, en : signal is true;
+
 begin
 
   outC_req <= outC_reqA xor outC_reqB;

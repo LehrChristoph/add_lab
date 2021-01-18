@@ -10,7 +10,7 @@ use ieee.numeric_std.all;
 use work.delay_element_pkg.all;
 
 entity add_block is
-  generic ( 
+  generic (
     DATA_WIDTH: natural := DATA_WIDTH);
   port (-- Input channel
     in_req    : in std_logic;
@@ -28,7 +28,9 @@ architecture Behavioral of add_block is
 signal connect: std_logic := '0'; -- signal for constraining i/o (needed only for post-timing simulation)
 
 attribute dont_touch : string;
-attribute dont_touch of  connect : signal is "true";   
+attribute dont_touch of  connect : signal is "true";
+attribute keep : boolean;
+attribute keep of connect : signal is true;
 begin
 
 delay_req: entity work.delay_element

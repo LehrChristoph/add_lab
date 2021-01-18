@@ -23,6 +23,9 @@ architecture beh of handshake is
     signal c_in1 : std_logic;
     signal c_in2 : std_logic;
     signal c_out : std_logic;
+
+    attribute keep : boolean;
+    attribute keep of en, c_in1, c_in2, c_out : signal is true;
 begin
 
     c_in1 <= in_req and (not out_ack) after AND2_DELAY + NOT1_DELAY;

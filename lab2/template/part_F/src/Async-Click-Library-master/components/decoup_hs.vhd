@@ -27,6 +27,8 @@ end decoupled_hs_reg;
 architecture behavioral of decoupled_hs_reg is
 
   signal en : std_logic;
+  attribute keep : boolean;
+  attribute keep of en : signal is true;
 
 begin
   handshake_inst : entity work.handshake

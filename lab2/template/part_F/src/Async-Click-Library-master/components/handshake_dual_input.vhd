@@ -23,6 +23,9 @@ architecture beh of handshake_dual_input is
     signal c_in2 : std_logic;
     signal c_out : std_logic;
     signal c1_out : std_logic;
+
+    attribute keep : boolean;
+    attribute keep of en, c_in1, c_in2, c1_out, c_out : signal is true;
 begin
 
     c_elem1 : entity work.C2_r

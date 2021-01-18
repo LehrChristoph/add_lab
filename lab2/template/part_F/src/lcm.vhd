@@ -82,6 +82,41 @@ signal r1_in_ack, r1_in_req, r1_in_data, r1_out_ack, r1_out_req, r1_out_data : s
 
 signal f1_reqA, f1_ackA, f1_reqB, f1_ackB, f1_reqC, f1_ackC : std_logic;
 
+attribute keep : boolean;
+attribute keep of
+  m1_dataA,  m1_dataB,  m1_dataC,
+  m1_reqA,   m1_reqB,   m1_reqC,
+  m1_ackA,   m1_ackB,   m1_ackC,
+  m1_reqSel, m1_ackSel, m1_dataSel,
+  fr1_dataA,  fr1_dataB,  fr1_dataC,
+  fr1_reqA,   fr1_reqB,   fr1_reqC,
+  fr1_ackA,   fr1_ackB,   fr1_ackC,
+  cmp1_in_ack, cmp1_in_req, cmp1_out_req, cmp1_out_ack, cmp1_out_data,
+  cmp1_in_data,
+  de1_dataA,  de1_dataB,  de1_dataC,
+  de1_reqA,   de1_reqB,   de1_reqC,
+  de1_ackA,   de1_ackB,   de1_ackC,
+  de1_reqSel, de1_ackSel, de1_dataSel,
+  add1_in_ack, add1_in_req, add1_out_ack, add1_out_req,
+  add1_dataA, add1_dataB, add1_dataC,
+  add2_in_ack, add2_in_req, add2_out_ack, add2_out_req,
+  add2_dataA, add2_dataB, add2_dataC,
+  mrg1_dataA,  mrg1_dataB,  mrg1_dataC,
+  mrg1_reqA,   mrg1_reqB,   mrg1_reqC,
+  mrg1_ackA,   mrg1_ackB,   mrg1_ackC,
+  fr2_dataA,  fr2_dataB,  fr2_dataC,
+  fr2_reqA,   fr2_reqB,   fr2_reqC,
+  fr2_ackA,   fr2_ackB,   fr2_ackC,
+  de2_dataA,  de2_dataB,  de2_dataC,
+  de2_reqA,   de2_reqB,   de2_reqC,
+  de2_ackA,   de2_ackB,   de2_ackC,
+  de2_reqSel, de2_ackSel, de2_dataSel,
+  cmp2_in_ack, cmp2_in_req, cmp2_out_ack, cmp2_out_req, cmp2_out_data,
+  cmp2_in_data,
+  r1_in_ack, r1_in_req, r1_in_data, r1_out_ack, r1_out_req, r1_out_data,
+  f1_reqA, f1_ackA, f1_reqB, f1_ackB, f1_reqC, f1_ackC
+: signal is true;
+
 
 begin
   -- Interface connections

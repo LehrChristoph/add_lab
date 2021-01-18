@@ -24,18 +24,20 @@ entity sel_a_larger_b is
 end sel_a_larger_b;
 
 architecture Behavioral of sel_a_larger_b is
-    
+
     signal a : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
     signal b : std_logic_vector(DATA_WIDTH/2 -1 downto 0);
 
   attribute dont_touch : string;
   attribute dont_touch of  a, b: signal is "true";
-    
+  attribute keep : boolean;
+  attribute keep of a,b : signal is true;
+
 begin
 
   a <= in_data(DATA_WIDTH - 1 downto DATA_WIDTH/2);
   b <= in_data(DATA_WIDTH/2 -1 downto 0);
-    
+
   delay_req: entity work.delay_element
     generic map(
       size => ADD_DELAY)
@@ -44,5 +46,5 @@ begin
 
   in_ack <= out_ack;
   selector <= '1' when a > b else '0';
-    
+
 end Behavioral;

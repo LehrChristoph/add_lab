@@ -37,6 +37,9 @@ architecture arch of mux is
 
   signal int_in_ack : std_logic;
 
+  attribute keep : boolean;
+  attribute keep of en, enA, enB : signal is true;
+
 begin
   outC_req <= outC_reqA or outC_reqB;
   inSel_ack <= inSel_ackA or inSel_ackB;

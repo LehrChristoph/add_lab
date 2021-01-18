@@ -33,6 +33,8 @@ entity reg_fork is
 architecture Behavioral of reg_fork is
 
 signal en: std_logic;
+attribute keep : boolean;
+attribute keep of en : signal is true;
 begin
   handshake : entity work.handshake_dual_output
   port map (
