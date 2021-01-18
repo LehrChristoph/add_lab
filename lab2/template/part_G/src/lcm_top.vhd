@@ -22,10 +22,10 @@ end LCM_top;
 
 architecture STRUCTURE of LCM_top is
 	constant DATA_WIDTH : Integer := result'length;
-	constant SYNC_STAGES : NATURAL := 2;
+	constant SYNC_STAGES : NATURAL := 10;
 	
 	signal AB_t, AB_f : std_logic_vector( DATA_WIDTH-1 downto 0);
-	signal result_t, result_f : std_logic_vector( DATA_WIDTH-1 downto 0);
+	signal result_t, result_f,result_output : std_logic_vector( DATA_WIDTH-1 downto 0);
 	signal sys_res_n : std_logic;
 	signal synch_ack_result : std_logic;
 	signal synch_req_AB : std_logic;
@@ -73,16 +73,15 @@ begin
 	set_input : process(synch_req_AB, sys_res_n, A, B)
 		variable prev_out : std_logic := '0';
 	begin
-		if (sys_res_n = '1' ) then
+		if (sys_res_n = '0' or ack_AB = '1' ) then
 			AB_t <= (others => '0');
 			AB_f <= (others => '0');
 		else	
-			if synch_req_AB = '1' then
-				AB_t <= A&B;
-				AB_f <= not(A&B);
-			else
-				AB_t <= (others => '0');
-				AB_f <= (others => '0');
+			if rising_edge(synch_req_AB) then
+				AB_t( 7 downto 4) <= A;
+				AB_t( 3 downto 0) <= B;
+				AB_f( 7 downto 4) <= not A;
+				AB_f( 3 downto 0) <= not B;
 			end if;
 		end if;
 	end process set_input;
@@ -95,8 +94,8 @@ begin
 		AB_f 			=> AB_f,
 		RESULT_t 	=> result_t,
 		RESULT_f 	=> result_f,
-		rst   		=> sys_res_n,
-		ack_result	=> synch_ack_result,
+		rst   		=> not sys_res_n,
+		ack_result	=> calculation_done,
 		ack_input	=> ack_AB
 	);
 	
@@ -105,24 +104,25 @@ begin
 		DATA_WIDTH => DATA_WIDTH
 	)
 	port map(
-		rst => sys_res_n,
+		rst => not sys_res_n,
 		data_t => result_t,
 		data_f => result_f,
 		complete => calculation_done
 	);
 	
-	set_output : process(calculation_done, result_t)
+	set_output : process(clk,calculation_done, result_t, sys_res_n)
 		variable prev_out : std_logic := '0';
 	begin
-		if (calculation_done = '1' ) then
-			result <= result_t;
-			req_result <= '1';
-		else	
-			result <= (others => '0');
-			req_result <= '0';
+		if (sys_res_n = '0' ) then
+			result_output <= (others => '0');
+		elsif rising_edge(calculation_done) then
+			result_output <= result_t;
 		end if;
 	end process set_output;
 	
+	result <= result_output;
+	
 	A_deb <= A;
 	B_deb <= B;
+	
 end STRUCTURE;
