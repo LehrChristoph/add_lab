@@ -68,15 +68,15 @@ begin
   );
 
   en <= enA or enB;
-  latch_data : process(rst, en)
+  latch_data : process(rst, en, inA_data, inB_data, selector)
   begin
     if rst = '1' then
       outC_data <= (others => '0');
-    elsif rising_edge(en) then
+    elsif en = '1' then
       if selector(0) = '1' then
-        outC_data <= inA_data;
+        outC_data <= inA_data after REG_CQ_DELAY;
       else
-        outC_data <= inB_data;
+        outC_data <= inB_data after REG_CQ_DELAY;
       end if;
     end if;
   end process;

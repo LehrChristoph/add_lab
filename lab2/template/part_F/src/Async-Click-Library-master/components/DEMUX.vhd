@@ -55,14 +55,14 @@ begin
     en => en
   );
 
-  req : process(en, rst)
+  req : process(en, rst, inA_data)
     begin
       if rst = '1' then
         outB_data <= (others => '0');
         outC_data <= (others => '0');
-      elsif rising_edge(en) then
-        outB_data <= inA_data;
-        outC_data <= inA_data;
+      elsif en = '1' then
+        outB_data <= inA_data after REG_CQ_DELAY;
+        outC_data <= inA_data after REG_CQ_DELAY;
       end if;
     end process req;
 

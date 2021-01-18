@@ -44,11 +44,11 @@ begin
     en => en
   );
 
-  clock_regs: process(en, rst)
+  clock_regs: process(en, rst, in_data)
   begin
     if rst = '1' then
       out_data <= std_logic_vector(to_unsigned(VALUE, DATA_WIDTH));
-    elsif rising_edge(en) then
+    elsif en = '1' then
       out_data <= in_data after REG_CQ_DELAY;
     end if;
   end process;

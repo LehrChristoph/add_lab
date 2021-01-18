@@ -61,15 +61,15 @@ begin
 
   en <= enA or enB;
 
-  memory_proc : process(en, rst)
+  memory_proc : process(en, rst, inA_data, inB_data, inA_req, inB_req)
     begin
       if rst = '1' then
         outC_data <= (others => '0');
-      elsif rising_edge(en) then
+      elsif en = '1' and (inA_req ='1' or inB_req = '1')  then
         if inA_req = '1' then
-          outC_data <= inA_data;
+          outC_data <= inA_data after REG_CQ_DELAY;
         else
-          outC_data <= inB_data;
+          outC_data <= inB_data after REG_CQ_DELAY;
         end if;
       end if;
     end process;
