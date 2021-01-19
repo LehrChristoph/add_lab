@@ -15,8 +15,7 @@ entity LCM_top is
 		req_AB: in std_logic;
 		ack_AB: out std_logic;
 		result: out std_logic_vector(7 downto 0);
-		req_result: out std_logic;
-		ack_result: in std_logic
+		req_result: out std_logic
 	);
 end LCM_top;
 
@@ -44,19 +43,7 @@ begin
 		data_in => res_n ,
 		data_out => sys_res_n
 	);
-	
-	ack_result_sync : sync
-	generic map (
-		SYNC_STAGES => SYNC_STAGES ,
-		RESET_VALUE => '0'
-	)
-	port map(
-		clk => clk ,
-		res_n => sys_res_n ,
-		data_in => ack_result ,
-		data_out => synch_ack_result
-	);
-	
+		
 	req_AB_sync : sync
 	generic map (
 		SYNC_STAGES => SYNC_STAGES ,

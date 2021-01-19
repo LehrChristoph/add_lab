@@ -7,6 +7,7 @@ use ieee.numeric_std.all;
 
 library std; -- for Printing
 use std.textio.all;
+use std.env.stop;
 use ieee.std_logic_textio.all;
 
 use ieee.std_logic_unsigned.all;
@@ -108,7 +109,7 @@ begin
 			wait until rising_edge(clk);
 			wait until rising_edge(clk);
 		end loop;
-		wait;
+		stop;
 	end process;
 
 	generate_clk : process

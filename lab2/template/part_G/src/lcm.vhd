@@ -96,23 +96,6 @@ begin
 			inAB_f(SUM_WIDTH+SUMMAND_WIDTH -1 downto SUM_WIDTH) <= AB_f(DATA_WIDTH-1 downto SUMMAND_WIDTH);
 			inAB_f(SUM_WIDTH -1 downto SUMMAND_WIDTH) <= (others => phase_f);
 			inAB_f(SUMMAND_WIDTH -1 downto 0) <= AB_f(SUMMAND_WIDTH-1 downto 0);
-				
---			if all_zeros_dw = AB_t and all_zeros_dw = AB_f then
---				inAB_t <= (others => '0');
---				inAB_f <= (others => '0');
---			else
---				inAB_t(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH) <= AB_t;
---				inAB_t(2*SUM_WIDTH -1 downto SUM_WIDTH+SUMMAND_WIDTH) <= (others => '0');
---				inAB_t(SUM_WIDTH+SUMMAND_WIDTH -1 downto SUM_WIDTH) <= AB_t(DATA_WIDTH-1 downto SUMMAND_WIDTH);
---				inAB_t(SUM_WIDTH -1 downto SUMMAND_WIDTH) <= (others => '0');
---				inAB_t(SUMMAND_WIDTH -1 downto 0) <= AB_t(SUMMAND_WIDTH-1 downto 0);
---				
---				inAB_f(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH) <= AB_f;
---				inAB_f(2*SUM_WIDTH -1 downto SUM_WIDTH+SUMMAND_WIDTH) <= (others => '1');
---				inAB_f(SUM_WIDTH+SUMMAND_WIDTH -1 downto SUM_WIDTH) <= AB_f(DATA_WIDTH-1 downto SUMMAND_WIDTH);
---				inAB_f(SUM_WIDTH -1 downto SUMMAND_WIDTH) <= (others => '1');
---				inAB_f(SUMMAND_WIDTH -1 downto 0) <= AB_f(SUMMAND_WIDTH-1 downto 0);
---			end if;
 		end if;
 	end process set_input;
 	
@@ -207,7 +190,7 @@ begin
 		);
 
 -- sumA + A	
-	add0_prepare : process(rst,de1_AsumA_data_t, de1_AsumA_data_f)
+	add1_prepare : process(rst,de1_AsumA_data_t, de1_AsumA_data_f)
 		variable phase_f : std_logic := '0';
 	begin
 		if (rst = '1' ) then
@@ -223,21 +206,9 @@ begin
 			de1_A_data_f(DATA_PATH_WIDTH - 1 downto SUM_WIDTH + SUMMAND_WIDTH) <= (others => phase_f);
 			de1_A_data_f(SUM_WIDTH + SUMMAND_WIDTH -1 downto SUM_WIDTH) <= de1_AsumA_data_f(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH+ SUMMAND_WIDTH);
 			de1_A_data_f(SUM_WIDTH - 1 downto 0) <= (others => phase_f);
-			
---			if all_zeros_dpw = de1_AsumA_data_t and de1_AsumA_data_f = all_zeros_dpw then
---				de1_A_data_t <= (others => '0');
---				de1_A_data_f <= (others => '0');
---			else
---				de1_A_data_t(DATA_PATH_WIDTH - 1 downto SUM_WIDTH + SUMMAND_WIDTH) <= (others => '0');
---				de1_A_data_t(SUM_WIDTH + SUMMAND_WIDTH -1 downto SUM_WIDTH) <= de1_AsumA_data_t(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH+ SUMMAND_WIDTH);
---				de1_A_data_t(SUM_WIDTH - 1 downto 0) <= (others => '0');
---				
---				de1_A_data_f(DATA_PATH_WIDTH - 1 downto SUM_WIDTH + SUMMAND_WIDTH) <= (others => '1');
---				de1_A_data_f(SUM_WIDTH + SUMMAND_WIDTH -1 downto SUM_WIDTH) <= de1_AsumA_data_f(DATA_PATH_WIDTH -1 downto 2*SUM_WIDTH+ SUMMAND_WIDTH);
---				de1_A_data_f(SUM_WIDTH - 1 downto 0) <= (others => '1');
---			end if;
+		
 		end if;
-	end process add0_prepare;
+	end process add1_prepare;
 	
 	add1_A_sumA: entity work.add_block
 	generic map(
@@ -260,7 +231,7 @@ begin
 
 	
 -- sumB + B
-	add1_prepare : process(rst,de1_BsumB_data_t, de1_BsumB_data_f)
+	add2_prepare : process(rst,de1_BsumB_data_t, de1_BsumB_data_f)
 		variable phase_f : std_logic := '0';
 	begin
 		if (rst = '1' ) then
@@ -274,21 +245,10 @@ begin
 			
 			de1_B_data_f(DATA_PATH_WIDTH -1 downto SUMMAND_WIDTH) <= (others => phase_f);
 			de1_B_data_f(SUMMAND_WIDTH -1 downto 0) <= de1_BsumB_data_f(DATA_PATH_WIDTH-SUMMAND_WIDTH -1 downto 2*SUM_WIDTH);
-				
---			if all_zeros_dpw = de1_BsumB_data_t and all_zeros_dpw = de1_BsumB_data_f then
---				de1_B_data_t <= (others => '0');
---				de1_B_data_f <= (others => '0');
---			else
---				de1_B_data_t(DATA_PATH_WIDTH -1 downto SUMMAND_WIDTH) <= (others => '0');
---				de1_B_data_t(SUMMAND_WIDTH -1 downto 0) <= de1_BsumB_data_t(DATA_PATH_WIDTH-SUMMAND_WIDTH -1 downto 2*SUM_WIDTH);
---				
---				de1_B_data_f(DATA_PATH_WIDTH -1 downto SUMMAND_WIDTH) <= (others => '1');
---				de1_B_data_f(SUMMAND_WIDTH -1 downto 0) <= de1_BsumB_data_f(DATA_PATH_WIDTH-SUMMAND_WIDTH -1 downto 2*SUM_WIDTH);
---			end if;
 		end if;
-	end process add1_prepare;
+	end process add2_prepare;
 	
-	add1_B_sumB: entity work.add_block
+	add2_B_sumB: entity work.add_block
 	generic map(
 		DATA_WIDTH => DATA_PATH_WIDTH
 	)
@@ -444,8 +404,4 @@ begin
 		out_t     => r2_data_t,
 		out_f     => r2_data_f
 	);
-
-
-	
-
 end STRUCTURE;

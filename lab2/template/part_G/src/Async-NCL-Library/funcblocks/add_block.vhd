@@ -162,17 +162,6 @@ begin
 			carry_init_f <= '0';
 		else
 			carry_init_f <= inA_data_t(0) xor inA_data_f(0);
---			input_complete_var := '1';
---			for i in (inA_data_t'length -1) downto 0 loop
---				input_complete_var := input_complete_var and (inA_data_t(i) or inA_data_f(i)) ;
---				input_complete_var := input_complete_var and (inB_data_t(i) or inB_data_f(i)) ;
---			end loop;
---			
---			if input_complete_var = '1' then
---				carry_init_f <= '1';
---			else 
---				carry_init_f <= '0';
---			end if;
 		end if;
 	end process;
 	
